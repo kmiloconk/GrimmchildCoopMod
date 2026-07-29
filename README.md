@@ -19,7 +19,7 @@ segundo jugador.
 ## Requisitos
 
 - Hollow Knight 1.5.78.11833
-- Hollow Knight Modding API (Lumafly recomendado https://themulhima.github.io/Lumafly/)
+- Hollow Knight Modding API ([Lumafly](https://themulhima.github.io/Lumafly/) recomendado)
 - Dos controladores compatibles con XInput
 
 ## Instalación manual
