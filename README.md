@@ -45,3 +45,12 @@ Controls the Knight normally.
 - This version uses Grimmchild's original sprites.
 - When starting a new save, you must leave the game and reload the save once for Grimmchild to appear.
 - Grimmchild's progression and additional features will be expanded in future releases.
+  
+## License
+
+This project is licensed under the MIT License.
+
+## Credits
+
+- Team Cherry for Hollow Knight.
+- Lumafly and the Hollow Knight Modding community.
