@@ -1,46 +1,47 @@
 # GrimmchildCoopMod
 
-Versión 1.0.0
+**Version 1.0.0**
 
-Convierte al Grimmchild original en un personaje controlado por un
-segundo jugador.
+Turn the original Grimmchild into a fully playable character controlled by a second player.
 
-## Características
+## Features
 
-- El Caballero utiliza el primer controlador.
-- Grimmchild utiliza el segundo controlador.
-- Movimiento manual de Grimmchild.
-- Ataque manual.
-- Teletransporte manual.
-- Comportamiento original al descansar en bancos.
-- Grimmchild permanece en nivel 4.
-- El amuleto no consume muescas.
+- The Knight is controlled by Player 1.
+- Grimmchild is controlled by Player 2.
+- Manual Grimmchild movement.
+- Manual attack.
+- Manual teleport.
+- Original bench behavior is preserved.
+- Grimmchild is permanently set to Level 4.
+- The Grimmchild charm does not consume a notch.
 
-## Requisitos
+## Requirements
 
 - Hollow Knight 1.5.78.11833
-- Hollow Knight Modding API ([Lumafly](https://themulhima.github.io/Lumafly/) recomendado)
-- Dos controladores compatibles con XInput
+- Hollow Knight Modding API ([Lumafly](https://themulhima.github.io/Lumafly/) recommended)
+- Two XInput-compatible controllers
 
-## Instalación manual
+## Manual Installation
 
-1. Instala la Modding API.
-2. Crea una carpeta llamada `GrimmchildCoopMod` dentro de la carpeta `Mods`.
-3. Copia `GrimmchildCoopMod.dll` dentro de esa carpeta.
-4. Inicia Hollow Knight con los dos controladores conectados.
+1. Install the Hollow Knight Modding API.
+2. Create a folder named `GrimmchildCoopMod` inside the `Mods` folder.
+3. Copy `GrimmchildCoopMod.dll` into that folder.
+4. Launch Hollow Knight with both controllers connected.
 
-## Controles
+## Controls
 
-### Jugador 1
-Controla al Caballero normalmente.
+### Player 1
+Controls the Knight normally.
 
-### Jugador 2
-- Movimiento: stick izquierdo
-- Ataque: X
+### Player 2
 
-## Limitaciones conocidas
-- Al usar el talisman de Grimm a 4 de forma permanente el DLC de Grimm puede dar errores.
-- Requiere dos controladores XInput.
-- Esta versión utiliza los sprites originales de Grimmchild.
-- Al iniciar una nueva partida debes salir y volver a entrar en ella para que el Grimmchild aparezca.
-- El nivel de Grimmchild y otros comportamientos seguirán ampliándose en versiones futuras.
+- Move: Left Stick
+- Attack: X
+
+## Known Limitations
+
+- Since Grimmchild is permanently forced to Level 4, the Grimm Troupe DLC may not function correctly.
+- Two XInput-compatible controllers are required.
+- This version uses Grimmchild's original sprites.
+- When starting a new save, you must leave the game and reload the save once for Grimmchild to appear.
+- Grimmchild's progression and additional features will be expanded in future releases.
