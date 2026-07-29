@@ -41,12 +41,12 @@ Controls the Knight normally.
 
 - Attack: X
 
-<img width="384" height="288" alt="ataque" src="https://github.com/user-attachments/assets/3a21adbe-aeed-44af-ab1d-24b4c574e18e" />
+  <img width="384" height="288" alt="ataque" src="https://github.com/user-attachments/assets/3a21adbe-aeed-44af-ab1d-24b4c574e18e" />
 
 
 - Teleport: Automatic
 
-<img width="384" height="288" alt="teletransporte" src="https://github.com/user-attachments/assets/7fdfc9b0-102b-40db-a413-beaa9a767620" />
+  <img width="384" height="288" alt="teletransporte" src="https://github.com/user-attachments/assets/7fdfc9b0-102b-40db-a413-beaa9a767620" />
 
 
 ## Known Limitations
