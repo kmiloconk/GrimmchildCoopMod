@@ -25,8 +25,8 @@ segundo jugador.
 ## Instalación manual
 
 1. Instala la Modding API.
-2. Crea una carpeta llamada `MyCompanionMod` dentro de la carpeta `Mods`.
-3. Copia `MyCompanionMod.dll` dentro de esa carpeta.
+2. Crea una carpeta llamada `GrimmchildCoopMod` dentro de la carpeta `Mods`.
+3. Copia `GrimmchildCoopMod.dll` dentro de esa carpeta.
 4. Inicia Hollow Knight con los dos controladores conectados.
 
 ## Controles
