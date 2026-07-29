@@ -42,4 +42,5 @@ Controla al Caballero normalmente.
 - Al usar el talisman de Grimm a 4 de forma permanente el DLC de Grimm puede dar errores.
 - Requiere dos controladores XInput.
 - Esta versión utiliza los sprites originales de Grimmchild.
+- Al iniciar una nueva partida debes salir y volver a entrar en ella para que el Grimmchild aparezca.
 - El nivel de Grimmchild y otros comportamientos seguirán ampliándose en versiones futuras.
