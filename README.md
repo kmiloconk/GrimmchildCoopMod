@@ -39,7 +39,7 @@ Controls the Knight normally.
   
   <img width="384" height="288" alt="movimiento" src="https://github.com/user-attachments/assets/fdc01ce6-9f93-4e27-9952-b96d1da3cb98" />
 
-- Attack: X
+- Attack: X button Xbox controller
 
   <img width="384" height="288" alt="ataque" src="https://github.com/user-attachments/assets/3a21adbe-aeed-44af-ab1d-24b4c574e18e" />
 
