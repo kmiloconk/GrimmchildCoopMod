@@ -10,7 +10,7 @@ Turn the original Grimmchild into a fully playable character controlled by a sec
 - Grimmchild is controlled by Player 2.
 - Manual Grimmchild movement.
 - Manual attack.
-- Manual teleport.
+- Automatic teleport.
 - Original bench behavior is preserved.
 - Grimmchild is permanently set to Level 4.
 - The Grimmchild charm does not consume a notch.
