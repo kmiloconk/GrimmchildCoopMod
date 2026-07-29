@@ -2,7 +2,7 @@
 
 **Version 1.0.0**
 
-Turn the original Grimmchild into a fully playable character controlled by a second player.
+Cooperative Mod to turn the original Grimmchild into a fully playable character controlled by a second player.
 
 ## Features
 
