@@ -1,5 +1,7 @@
 # GrimmchildCoopMod
 
+<img width="1920" height="1080" alt="Sin título" src="https://github.com/user-attachments/assets/64b13995-ae64-48e0-83cd-30a9c2084189" />
+
 **Version 1.1.0**
 
 Cooperative Mod to turn the original Grimmchild into a fully playable companion controlled by a second player. Designed for local cooperative play while preserving the original feel of Hollow Knight.
