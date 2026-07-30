@@ -65,6 +65,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GrimmchillSettings.cs" />
     <Compile Include="GrimmSprite.cs" />
     <Compile Include="InputManager.cs" />
     <Compile Include="GrimmchildCoopMod.cs" />

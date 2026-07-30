@@ -1,12 +1,6 @@
 ﻿using HutongGames.PlayMaker;
-using HutongGames.PlayMaker.Actions;
 using Modding;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 
@@ -56,7 +50,6 @@ namespace GrimmchildCoopMod
                 return;
             }
 
-           
 
             FsmState follow = FindState(control, "Follow");
 
@@ -75,7 +68,7 @@ namespace GrimmchildCoopMod
                 "[GrimmchildCoopMod] IA de Grimmchild modificada.");
         }
 
-       
+
 
         private static FsmState FindState(
             PlayMakerFSM fsm,
@@ -159,9 +152,9 @@ namespace GrimmchildCoopMod
             follow.Transitions = newTransitions.ToArray();
         }
 
-      
 
-      
+
+
 
         private static bool ContainsTeleportName(string value)
         {
@@ -174,6 +167,7 @@ namespace GrimmchildCoopMod
                    lowerValue.Contains("warp");
         }
 
-      
+
+
     }
 }
