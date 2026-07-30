@@ -1,12 +1,7 @@
 ﻿using HutongGames.PlayMaker;
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
-
+using HutongGames.PlayMaker.Actions;
 
 
 namespace GrimmchildCoopMod
@@ -29,8 +24,8 @@ namespace GrimmchildCoopMod
 
         private float attackCooldownTimer;
         private bool teleporting;
-
         
+
 
         private void Awake()
         {
@@ -141,7 +136,6 @@ namespace GrimmchildCoopMod
             if (!resting || controlFSM == null)
                 return;
 
-
             StartCoroutine(WakeUpRoutine());
         }
 
@@ -158,7 +152,6 @@ namespace GrimmchildCoopMod
                 yield return null;
             }
 
-            // Esperamos dos frames para que las acciones del FSM terminen.
             yield return null;
             yield return null;
 
@@ -169,7 +162,6 @@ namespace GrimmchildCoopMod
 
             RestartFlyingAudio();
 
-            
         }
 
 
@@ -249,11 +241,13 @@ namespace GrimmchildCoopMod
             if (controlFSM == null || IsAttacking())
                 return false;
 
+            UpdateGrimmchildDamage();
 
             controlFSM.SetState("Check For Target");
 
             return true;
         }
+
 
         private bool IsAttacking()
         {
@@ -442,6 +436,78 @@ namespace GrimmchildCoopMod
             }
 
             yield return StartCoroutine(WaitForWake());
+        }
+
+        private void UpdateGrimmchildDamage()
+        {
+            if (controlFSM == null)
+                return;
+
+            FsmState shootState = controlFSM.Fsm.GetState("Shoot");
+
+            if (shootState == null)
+            {
+                Modding.Logger.Log(
+                    "[GrimmchildCoopMod] No se encontró el estado Shoot.");
+
+                return;
+            }
+
+            foreach (FsmStateAction action in shootState.Actions)
+            {
+                SetFsmInt setFsmInt = action as SetFsmInt;
+
+                if (setFsmInt == null)
+                    continue;
+
+                string fsmName = setFsmInt.fsmName != null
+                    ? setFsmInt.fsmName.Value
+                    : string.Empty;
+
+                string variableName = setFsmInt.variableName != null
+                    ? setFsmInt.variableName.Value
+                    : string.Empty;
+
+                if (fsmName != "Attack" ||
+                    variableName != "Damage")
+                {
+                    continue;
+                }
+
+                int damage = 11;
+
+                if (GrimmchildCoopMod.Settings.ScaleDamageWithNail)
+                {
+                    damage = GetKnightNailDamage();
+                }
+
+                if (damage <= 0)
+                    damage = 11;
+
+                setFsmInt.setValue.Value = damage;
+
+                Modding.Logger.Log(
+                    "[GrimmchildCoopMod] Daño de Grimmchild configurado: " +
+                    damage);
+
+                return;
+            }
+
+            Modding.Logger.Log(
+                "[GrimmchildCoopMod] No se encontró la acción de daño en Shoot.");
+        }
+
+        private int GetKnightNailDamage()
+        {
+            if (PlayerData.instance == null)
+                return 5;
+
+            int nailDamage =
+                PlayerData.instance.GetInt("nailDamage");
+
+            return nailDamage > 0
+                ? nailDamage
+                : 5;
         }
     }
 }
