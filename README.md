@@ -24,8 +24,6 @@ Cooperative Mod to turn the original Grimmchild into a fully playable companion 
 
 ## In-Game Options
 
-<img width="918" height="319" alt="Captura de pantalla 2026-07-30 164319" src="https://github.com/user-attachments/assets/bc8850d2-da0b-4f1c-a52a-517707680ada" />
-
 The mod includes an in-game menu that lets you choose how Grimmchild's damage behaves.
 
 - **Original** — Uses the default Level 4 Grimmchild damage.
@@ -33,7 +31,7 @@ The mod includes an in-game menu that lets you choose how Grimmchild's damage be
 
 <!-- Add screenshot here -->
 
-![Options Menu](YOUR_IMAGE_LINK_HERE)
+<img width="918" height="319" alt="Captura de pantalla 2026-07-30 164319" src="https://github.com/user-attachments/assets/bc8850d2-da0b-4f1c-a52a-517707680ada" />
 
 ---
 
