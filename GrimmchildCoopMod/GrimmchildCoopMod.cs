@@ -11,10 +11,16 @@ namespace GrimmchildCoopMod
         IGlobalSettings<GrimmchildSettings>,
         IMenuMod
     {
-        
+
+        public static bool GrimmchildIsDead { get; private set; }
+
+        public static void SetGrimmchildDead(bool value)
+        {
+            GrimmchildIsDead = value;
+        }
         private static GrimmchildCoopMod instance;
 
-        private bool grimmPrepared;
+        private int preparedGrimmInstanceId;
 
 
         public static GrimmchildSettings Settings =
@@ -33,6 +39,7 @@ namespace GrimmchildCoopMod
 
             Log("GrimmchildCoopMod inicializado.");
         }
+
 
         private int OnGetPlayerInt(
             string name,
@@ -58,26 +65,28 @@ namespace GrimmchildCoopMod
             if (HeroController.instance == null)
                 return;
 
-            GameObject grimm =
-                GrimmSprite.GetGrimmchild();
+            GameObject grimm = GrimmSprite.GetGrimmchild();
 
             if (grimm == null)
-            {
-                grimmPrepared = false;
                 return;
-            }
 
-            if (grimmPrepared)
+            int currentInstanceId = grimm.GetInstanceID();
+
+            if (preparedGrimmInstanceId == currentInstanceId)
                 return;
 
             GrimmSprite.DisableAI(grimm);
 
-            if (grimm.GetComponent<Player2Controller>() == null)
+            Player2Controller controller =
+                grimm.GetComponent<Player2Controller>();
+
+            if (controller == null)
             {
-                grimm.AddComponent<Player2Controller>();
+                controller =
+                    grimm.AddComponent<Player2Controller>();
             }
 
-            grimmPrepared = true;
+            preparedGrimmInstanceId = currentInstanceId;
 
             Log("Grimmchild preparado para Jugador 2.");
         }

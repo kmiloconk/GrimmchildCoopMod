@@ -50,7 +50,12 @@ namespace GrimmchildCoopMod
             grimmColliders =
                 GetComponentsInChildren<Collider2D>(true);
 
-            
+            dead = GrimmchildCoopMod.GrimmchildIsDead;
+
+            if (dead)
+            {
+                ApplyDeadStateImmediately();
+            }
 
             if (body == null)
             {
@@ -197,6 +202,22 @@ namespace GrimmchildCoopMod
 
         }
 
+        private void ApplyDeadStateImmediately()
+        {
+            dead = true;
+            reviving = false;
+            resting = false;
+            teleporting = false;
+
+            StopFlyingAudio();
+            SetGrimmchildVisible(false);
+
+            if (body != null)
+            {
+                body.velocity = Vector2.zero;
+                body.simulated = false;
+            }
+        }
 
         private void RestartFlyingAudio()
         {
@@ -394,7 +415,9 @@ namespace GrimmchildCoopMod
             StopAllCoroutines();
 
             teleporting = false;
+            teleportTimer = 0f;
             attackCooldownTimer = 0f;
+            reviving = false;
 
             if (body != null)
             {
@@ -419,9 +442,25 @@ namespace GrimmchildCoopMod
             teleporting = false;
             teleportTimer = 0f;
             attackCooldownTimer = 0f;
+            reviving = false;
+
+            dead = GrimmchildCoopMod.GrimmchildIsDead;
+
+            if (dead)
+            {
+                ApplyDeadStateImmediately();
+
+                Modding.Logger.Log(
+                    "[GrimmchildCoopMod] Grimmchild continúa muerto tras cambiar de escena.");
+
+                yield break;
+            }
+
+            SetGrimmchildVisible(true);
 
             if (body != null)
             {
+                body.simulated = true;
                 body.velocity = Vector2.zero;
             }
 
@@ -435,7 +474,10 @@ namespace GrimmchildCoopMod
                 animator.Play("Fly 4");
             }
 
+            RestartFlyingAudio();
 
+            Modding.Logger.Log(
+                "[GrimmchildCoopMod] Grimmchild reiniciado después del cambio de escena.");
         }
 
         private IEnumerator WakeUpRoutine()
@@ -584,6 +626,8 @@ namespace GrimmchildCoopMod
             teleportTimer = 0f;
             attackCooldownTimer = 0f;
 
+            GrimmchildCoopMod.SetGrimmchildDead(true);
+
             if (body != null)
             {
                 body.velocity = Vector2.zero;
@@ -597,9 +641,20 @@ namespace GrimmchildCoopMod
             Modding.Logger.Log(
                 "[GrimmchildCoopMod] Grimmchild ha muerto.");
 
-            StopFlyingAudio();
+            if (body != null)
+            {
+                body.velocity = Vector2.zero;
+            }
 
-            if (animator != null)
+            /*
+             * La FSM original reproduce tanto Tele Out 4
+             * como el sonido de salida.
+             */
+            if (controlFSM != null)
+            {
+                controlFSM.SetState("Tele Start");
+            }
+            else if (animator != null)
             {
                 animator.Play("Tele Out 4");
             }
@@ -607,6 +662,16 @@ namespace GrimmchildCoopMod
             yield return new WaitForSeconds(0.25f);
 
             SetGrimmchildVisible(false);
+            StopFlyingAudio();
+
+            if (controlFSM != null)
+            {
+                /*
+                 * Evita que la secuencia automática continúe y
+                 * teletransporte nuevamente al personaje.
+                 */
+                controlFSM.SetState("Follow");
+            }
 
             if (body != null)
             {
@@ -643,32 +708,33 @@ namespace GrimmchildCoopMod
 
             SetGrimmchildVisible(true);
 
-            if (animator != null)
+            /*
+             * Tele reproduce el sonido original de aparición y
+             * vuelve a habilitar el renderer.
+             */
+            if (controlFSM != null)
+            {
+                controlFSM.SetState("Tele");
+            }
+            else if (animator != null)
             {
                 animator.Play("Tele In 4");
             }
 
             yield return new WaitForSeconds(0.3f);
 
-            if (controlFSM != null)
-            {
-                controlFSM.SetState("Follow");
-            }
-
             dead = false;
             reviving = false;
             resting = true;
 
-            RestartFlyingAudio();
+            GrimmchildCoopMod.SetGrimmchildDead(false);
 
-            /*
-             * Como el Caballero sigue sentado, hacemos que Grimmchild
-             * entre inmediatamente en su comportamiento de descanso.
-             */
             if (controlFSM != null)
             {
                 controlFSM.SetState("Rest Pause");
             }
+
+            RestartFlyingAudio();
 
             Modding.Logger.Log(
                 "[GrimmchildCoopMod] Grimmchild revivido.");

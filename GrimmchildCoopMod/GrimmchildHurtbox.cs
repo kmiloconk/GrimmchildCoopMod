@@ -50,5 +50,5 @@ namespace GrimmchildCoopMod
             controller.Kill();
         }
     }
-}
+
 }
