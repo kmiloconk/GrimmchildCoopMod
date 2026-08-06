@@ -152,10 +152,6 @@ namespace GrimmchildCoopMod
             follow.Transitions = newTransitions.ToArray();
         }
 
-
-
-
-
         private static bool ContainsTeleportName(string value)
         {
             if (string.IsNullOrEmpty(value))

@@ -11,19 +11,23 @@ namespace GrimmchildCoopMod
         IGlobalSettings<GrimmchildSettings>,
         IMenuMod
     {
+        
+        private static GrimmchildCoopMod instance;
 
         private bool grimmPrepared;
+
 
         public static GrimmchildSettings Settings =
             new GrimmchildSettings();
 
         public override string GetVersion()
         {
-            return "1.1.0";
+            return "1.2.0";
         }
 
         public override void Initialize()
         {
+            instance = this;
             ModHooks.GetPlayerIntHook += OnGetPlayerInt;
             ModHooks.HeroUpdateHook += OnHeroUpdate;
 
@@ -54,7 +58,8 @@ namespace GrimmchildCoopMod
             if (HeroController.instance == null)
                 return;
 
-            GameObject grimm = GrimmSprite.GetGrimmchild();
+            GameObject grimm =
+                GrimmSprite.GetGrimmchild();
 
             if (grimm == null)
             {
@@ -99,7 +104,12 @@ namespace GrimmchildCoopMod
         }
 
 
+        
 
+        
+       
+
+       
         public void OnLoadGlobal(
             GrimmchildSettings settings)
         {

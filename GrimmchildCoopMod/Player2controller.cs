@@ -4,6 +4,7 @@ using UnityEngine;
 using HutongGames.PlayMaker.Actions;
 
 
+
 namespace GrimmchildCoopMod
 {
     public class Player2Controller : MonoBehaviour
@@ -24,14 +25,32 @@ namespace GrimmchildCoopMod
 
         private float attackCooldownTimer;
         private bool teleporting;
+        private bool dead;
+        private bool reviving;
 
+        private MeshRenderer[] meshRenderers;
+        private Collider2D[] grimmColliders;
 
+        public bool IsDead
+        {
+            get { return dead; }
+        }
 
         private void Awake()
         {
             body = GetComponent<Rigidbody2D>();
             controlFSM = GrimmSprite.GetControlFSM(gameObject);
             animator = GetComponent<tk2dSpriteAnimator>();
+
+            CreateHurtbox();
+
+            meshRenderers =
+                GetComponentsInChildren<MeshRenderer>(true);
+
+            grimmColliders =
+                GetComponentsInChildren<Collider2D>(true);
+
+            
 
             if (body == null)
             {
@@ -56,7 +75,7 @@ namespace GrimmchildCoopMod
         {
             UpdateBenchState();
 
-            if (resting)
+            if (dead || reviving || resting)
                 return;
 
             UpdateAttack();
@@ -65,6 +84,9 @@ namespace GrimmchildCoopMod
 
         private void FixedUpdate()
         {
+            if (dead || reviving)
+                return;
+
             UpdateMovement();
         }
 
@@ -72,7 +94,9 @@ namespace GrimmchildCoopMod
         {
             if (body == null ||
                 teleporting ||
-                resting)
+                resting ||
+                dead ||
+                reviving)
             {
                 return;
             }
@@ -95,9 +119,18 @@ namespace GrimmchildCoopMod
 
             if (currentlyAtBench && !previousBenchState)
             {
-                StartResting();
+                if (dead && !reviving)
+                {
+                    StartCoroutine(ReviveRoutine());
+                }
+                else if (!dead)
+                {
+                    StartResting();
+                }
             }
-            else if (!currentlyAtBench && previousBenchState)
+            else if (!currentlyAtBench &&
+                     previousBenchState &&
+                     resting)
             {
                 StopResting();
             }
@@ -508,6 +541,180 @@ namespace GrimmchildCoopMod
             return nailDamage > 0
                 ? nailDamage
                 : 5;
+        }
+
+        private void CreateHurtbox()
+        {
+            Transform existing =
+                transform.Find("Player2 Hurtbox");
+
+            if (existing != null)
+                return;
+
+            GameObject hurtboxObject =
+                new GameObject("Player2 Hurtbox");
+
+            hurtboxObject.transform.SetParent(transform);
+            hurtboxObject.transform.localPosition = Vector3.zero;
+            hurtboxObject.transform.localRotation = Quaternion.identity;
+            hurtboxObject.transform.localScale = Vector3.one;
+
+            CircleCollider2D hurtbox =
+                hurtboxObject.AddComponent<CircleCollider2D>();
+
+            hurtbox.isTrigger = true;
+            hurtbox.radius = 0.65f;
+
+            hurtboxObject.AddComponent<GrimmchildHurtbox>();
+
+            Modding.Logger.Log(
+                "[GrimmchildCoopMod] Hurtbox de Grimmchild creada.");
+        }
+
+        public void Kill()
+        {
+            if (dead || reviving)
+                return;
+
+            StopAllCoroutines();
+
+            dead = true;
+            resting = false;
+            teleporting = false;
+            teleportTimer = 0f;
+            attackCooldownTimer = 0f;
+
+            if (body != null)
+            {
+                body.velocity = Vector2.zero;
+            }
+
+            StartCoroutine(DeathRoutine());
+        }
+
+        private IEnumerator DeathRoutine()
+        {
+            Modding.Logger.Log(
+                "[GrimmchildCoopMod] Grimmchild ha muerto.");
+
+            StopFlyingAudio();
+
+            if (animator != null)
+            {
+                animator.Play("Tele Out 4");
+            }
+
+            yield return new WaitForSeconds(0.25f);
+
+            SetGrimmchildVisible(false);
+
+            if (body != null)
+            {
+                body.velocity = Vector2.zero;
+                body.simulated = false;
+            }
+
+            Modding.Logger.Log(
+                "[GrimmchildCoopMod] Grimmchild oculto hasta descansar en una banca.");
+        }
+
+        private IEnumerator ReviveRoutine()
+        {
+            if (!dead || reviving)
+                yield break;
+
+            reviving = true;
+
+            Modding.Logger.Log(
+                "[GrimmchildCoopMod] Reviviendo a Grimmchild en la banca.");
+
+            if (HeroController.instance != null)
+            {
+                transform.position =
+                    HeroController.instance.transform.position;
+            }
+
+            if (body != null)
+            {
+                body.simulated = true;
+                body.velocity = Vector2.zero;
+                body.position = transform.position;
+            }
+
+            SetGrimmchildVisible(true);
+
+            if (animator != null)
+            {
+                animator.Play("Tele In 4");
+            }
+
+            yield return new WaitForSeconds(0.3f);
+
+            if (controlFSM != null)
+            {
+                controlFSM.SetState("Follow");
+            }
+
+            dead = false;
+            reviving = false;
+            resting = true;
+
+            RestartFlyingAudio();
+
+            /*
+             * Como el Caballero sigue sentado, hacemos que Grimmchild
+             * entre inmediatamente en su comportamiento de descanso.
+             */
+            if (controlFSM != null)
+            {
+                controlFSM.SetState("Rest Pause");
+            }
+
+            Modding.Logger.Log(
+                "[GrimmchildCoopMod] Grimmchild revivido.");
+        }
+
+        private void SetGrimmchildVisible(bool visible)
+        {
+            if (meshRenderers != null)
+            {
+                foreach (MeshRenderer renderer in meshRenderers)
+                {
+                    if (renderer != null)
+                    {
+                        renderer.enabled = visible;
+                    }
+                }
+            }
+
+            if (grimmColliders != null)
+            {
+                foreach (Collider2D collider in grimmColliders)
+                {
+                    if (collider != null)
+                    {
+                        collider.enabled = visible;
+                    }
+                }
+            }
+        }
+
+        private void StopFlyingAudio()
+        {
+            AudioSource[] audioSources =
+                GetComponentsInChildren<AudioSource>(true);
+
+            foreach (AudioSource source in audioSources)
+            {
+                if (source == null || source.clip == null)
+                    continue;
+
+                if (source.clip.name != "grimmchild_fly_loop")
+                    continue;
+
+                source.Stop();
+                return;
+            }
         }
     }
 }
