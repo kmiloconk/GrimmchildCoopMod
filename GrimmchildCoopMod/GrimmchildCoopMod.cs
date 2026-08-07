@@ -11,7 +11,7 @@ namespace GrimmchildCoopMod
         IGlobalSettings<GrimmchildSettings>,
         IMenuMod
     {
-
+        private static bool reviveGrimmchildAfterKnightDeath;
         public static bool GrimmchildIsDead { get; private set; }
 
         public static void SetGrimmchildDead(bool value)
@@ -36,6 +36,7 @@ namespace GrimmchildCoopMod
             instance = this;
             ModHooks.GetPlayerIntHook += OnGetPlayerInt;
             ModHooks.HeroUpdateHook += OnHeroUpdate;
+            ModHooks.AfterPlayerDeadHook += OnKnightDead;
 
             Log("GrimmchildCoopMod inicializado.");
         }
@@ -65,30 +66,42 @@ namespace GrimmchildCoopMod
             if (HeroController.instance == null)
                 return;
 
-            GameObject grimm = GrimmSprite.GetGrimmchild();
+            GameObject grimm =
+                GrimmSprite.GetGrimmchild();
 
             if (grimm == null)
                 return;
 
-            int currentInstanceId = grimm.GetInstanceID();
-
-            if (preparedGrimmInstanceId == currentInstanceId)
-                return;
-
-            GrimmSprite.DisableAI(grimm);
+            int currentInstanceId =
+                grimm.GetInstanceID();
 
             Player2Controller controller =
                 grimm.GetComponent<Player2Controller>();
 
-            if (controller == null)
+            if (preparedGrimmInstanceId != currentInstanceId)
             {
-                controller =
-                    grimm.AddComponent<Player2Controller>();
+                GrimmSprite.DisableAI(grimm);
+
+                if (controller == null)
+                {
+                    controller =
+                        grimm.AddComponent<Player2Controller>();
+                }
+
+                preparedGrimmInstanceId =
+                    currentInstanceId;
+
+                Log("Grimmchild preparado para Jugador 2.");
             }
 
-            preparedGrimmInstanceId = currentInstanceId;
+            
+            if (reviveGrimmchildAfterKnightDeath &&
+                controller != null)
+            {
+                reviveGrimmchildAfterKnightDeath = false;
 
-            Log("Grimmchild preparado para Jugador 2.");
+                controller.ReviveAfterKnightDeath();
+            }
         }
 
 
@@ -113,12 +126,20 @@ namespace GrimmchildCoopMod
         }
 
 
-        
+        private void OnKnightDead()
+        {
+            if (!GrimmchildIsDead)
+                return;
 
-        
-       
+            reviveGrimmchildAfterKnightDeath = true;
 
-       
+            Log("El Caballero murió con Grimmchild muerto. Revivirá al reaparecer.");
+        }
+
+
+
+
+
         public void OnLoadGlobal(
             GrimmchildSettings settings)
         {
@@ -142,14 +163,12 @@ namespace GrimmchildCoopMod
             List<IMenuMod.MenuEntry> menu =
                 new List<IMenuMod.MenuEntry>();
 
-            menu.Add(
-                new IMenuMod.MenuEntry
+            menu.Add(new IMenuMod.MenuEntry
                 {
                     Name = "Grimmchild Damage",
 
                     Description =
-                        "Choose between Grimmchild's original damage " +
-                        "or scaling with the Knight's current nail damage.",
+                        "Original damage or scaling with the Knight's current nail damage.",
 
                     Values = new[]
                 {
@@ -170,6 +189,33 @@ namespace GrimmchildCoopMod
                             : 0;
                     }
                 });
+
+            menu.Add( new IMenuMod.MenuEntry
+            {
+                Name = "Grimmchild Vulnerability",
+
+                Description =
+                "Grimmchild can receive damage",
+
+                Values = new[]
+            {
+                "Off",
+                "On"
+            },
+
+                Saver = option =>
+            {
+                Settings.GrimmchildVulnerable =
+                    option == 1;
+            },
+
+            Loader = () =>
+            {
+                return Settings.GrimmchildVulnerable
+                    ? 1
+                    : 0;
+            }
+        });
 
             return menu;
         }

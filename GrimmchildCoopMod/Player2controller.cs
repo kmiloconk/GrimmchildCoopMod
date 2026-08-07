@@ -601,6 +601,13 @@ namespace GrimmchildCoopMod
             hurtboxObject.transform.localRotation = Quaternion.identity;
             hurtboxObject.transform.localScale = Vector3.one;
 
+            /*
+             * Usamos la misma capa que HeroBox para que ataques,
+             * proyectiles y peligros interactúen con esta hurtbox
+             * igual que con el Caballero.
+             */
+            hurtboxObject.layer = GetHeroDamageLayer();
+
             CircleCollider2D hurtbox =
                 hurtboxObject.AddComponent<CircleCollider2D>();
 
@@ -610,9 +617,99 @@ namespace GrimmchildCoopMod
             hurtboxObject.AddComponent<GrimmchildHurtbox>();
 
             Modding.Logger.Log(
-                "[GrimmchildCoopMod] Hurtbox de Grimmchild creada.");
+                "[GrimmchildCoopMod] Hurtbox creada en capa: " +
+                LayerMask.LayerToName(hurtboxObject.layer));
         }
 
+        public void ReviveAfterKnightDeath()
+        {
+            if (!dead || reviving)
+                return;
+
+            StartCoroutine(ReviveAfterKnightDeathRoutine());
+        }
+
+        private IEnumerator ReviveAfterKnightDeathRoutine()
+        {
+            reviving = true;
+
+            Modding.Logger.Log(
+                "[GrimmchildCoopMod] Reviviendo a Grimmchild junto al Caballero.");
+
+            if (HeroController.instance == null)
+            {
+                reviving = false;
+                yield break;
+            }
+
+            transform.position =
+                HeroController.instance.transform.position;
+
+            if (body != null)
+            {
+                body.simulated = true;
+                body.velocity = Vector2.zero;
+                body.position = transform.position;
+            }
+
+            SetGrimmchildVisible(true);
+
+            /*
+             * Usamos la entrada original para recuperar
+             * animación y sonido.
+             */
+            if (controlFSM != null)
+            {
+                controlFSM.SetState("Tele");
+            }
+            else if (animator != null)
+            {
+                animator.Play("Tele In 4");
+            }
+
+            yield return new WaitForSeconds(0.3f);
+
+            dead = false;
+            reviving = false;
+            resting = false;
+
+            GrimmchildCoopMod.SetGrimmchildDead(false);
+
+            if (controlFSM != null)
+            {
+                controlFSM.SetState("Follow");
+            }
+
+            if (animator != null &&
+                !animator.IsPlaying("Fly 4"))
+            {
+                animator.Play("Fly 4");
+            }
+
+            RestartFlyingAudio();
+
+            Modding.Logger.Log(
+                "[GrimmchildCoopMod] Grimmchild revivido después de la muerte del Caballero.");
+        }
+        private int GetHeroDamageLayer()
+        {
+            if (HeroController.instance == null)
+                return gameObject.layer;
+
+            Collider2D[] heroColliders =
+                HeroController.instance.GetComponentsInChildren<Collider2D>(true);
+
+            foreach (Collider2D collider in heroColliders)
+            {
+                if (collider != null &&
+                    collider.gameObject.name == "HeroBox")
+                {
+                    return collider.gameObject.layer;
+                }
+            }
+
+            return HeroController.instance.gameObject.layer;
+        }
         public void Kill()
         {
             if (dead || reviving)
