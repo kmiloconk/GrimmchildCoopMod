@@ -17,11 +17,15 @@ namespace GrimmchildCoopMod
 
         private bool resting;
         private bool previousBenchState;
+        private bool receivingHit;
 
         private Rigidbody2D body;
         private PlayMakerFSM controlFSM;
         private tk2dSpriteAnimator animator;
         private float teleportTimer;
+        private bool animatorWasEnabled;
+        private bool controlFsmWasEnabled;
+
 
         private float attackCooldownTimer;
         private bool teleporting;
@@ -31,6 +35,9 @@ namespace GrimmchildCoopMod
 
         private MeshRenderer[] meshRenderers;
         private Collider2D[] grimmColliders;
+        private const float HitStopDuration = 0.08f;
+
+
 
         public bool IsDead
         {
@@ -44,6 +51,8 @@ namespace GrimmchildCoopMod
             animator = GetComponent<tk2dSpriteAnimator>();
 
             CreateHurtbox();
+
+            
 
             meshRenderers =
                 GetComponentsInChildren<MeshRenderer>(true);
@@ -81,8 +90,13 @@ namespace GrimmchildCoopMod
         {
             UpdateBenchState();
 
-            if (dead || reviving || resting)
+            if (dead ||
+                reviving ||
+                resting ||
+                receivingHit)
+            {
                 return;
+            }
 
             UpdateAttack();
             UpdateTeleport();
@@ -98,14 +112,8 @@ namespace GrimmchildCoopMod
 
         private void UpdateMovement()
         {
-            if (body == null ||
-                teleporting ||
-                resting ||
-                dead ||
-                reviving)
-            {
+            if (body == null || teleporting || receivingHit)
                 return;
-            }
 
             Vector2 input = InputManager.GetMovement();
 
@@ -748,9 +756,18 @@ namespace GrimmchildCoopMod
                 RestartFlyingAudio();
             }
 
+            GrimmchildHurtbox hurtbox = GetComponentInChildren<GrimmchildHurtbox>(true);
+
+            if (hurtbox != null)
+            {
+                hurtbox.ResetHit();
+            }
+
             Modding.Logger.Log(
                 "[GrimmchildCoopMod] Grimmchild revivido después de la muerte del Caballero.");
         }
+
+        
         private int GetHeroDamageLayer()
         {
             if (HeroController.instance == null)
@@ -772,10 +789,60 @@ namespace GrimmchildCoopMod
         }
         public void Kill()
         {
-            if (dead || reviving)
+            if (dead || reviving || receivingHit)
                 return;
 
-            StopAllCoroutines();
+            StartCoroutine(HitRoutine());
+        }
+
+        private IEnumerator HitRoutine()
+        {
+            receivingHit = true;
+
+            if (body != null)
+            {
+                body.velocity = Vector2.zero;
+            }
+
+            // Feedback inmediato.
+            PlayHitFlash();
+            PlayHitVibration();
+
+            // Guardamos el estado actual antes de congelar.
+            if (animator != null)
+            {
+                animatorWasEnabled = animator.enabled;
+                animator.enabled = false;
+            }
+
+            if (controlFSM != null)
+            {
+                controlFsmWasEnabled = controlFSM.enabled;
+                controlFSM.enabled = false;
+            }
+
+            /*
+             * Durante este tiempo:
+             * - no se mueve
+             * - no cambia de frame
+             * - la FSM no avanza
+             *
+             * El resto del juego continúa normalmente.
+             */
+            yield return new WaitForSecondsRealtime(HitStopDuration);
+
+            // Restauramos antes de iniciar el teletransporte.
+            if (animator != null)
+            {
+                animator.enabled = animatorWasEnabled;
+            }
+
+            if (controlFSM != null)
+            {
+                controlFSM.enabled = controlFsmWasEnabled;
+            }
+
+            receivingHit = false;
 
             dead = true;
             resting = false;
@@ -785,13 +852,9 @@ namespace GrimmchildCoopMod
 
             GrimmchildCoopMod.SetGrimmchildDead(true);
 
-            if (body != null)
-            {
-                body.velocity = Vector2.zero;
-            }
-
             StartCoroutine(DeathRoutine());
         }
+
 
         private IEnumerator DeathRoutine()
         {
@@ -840,6 +903,18 @@ namespace GrimmchildCoopMod
                 "[GrimmchildCoopMod] Grimmchild oculto hasta descansar en una banca.");
         }
 
+        private void PlayHitFlash()
+        {
+            SpriteFlash[] flashes = GetComponents<SpriteFlash>();
+
+            foreach (SpriteFlash flash in flashes)
+            {
+                if (flash != null)
+                {
+                    flash.FlashGrimmHit();
+                }
+            }
+        }
         private IEnumerator ReviveRoutine()
         {
             if (!dead || reviving)
@@ -891,6 +966,13 @@ namespace GrimmchildCoopMod
                 controlFSM.SetState("Rest Pause");
             }
 
+            GrimmchildHurtbox hurtbox = GetComponentInChildren<GrimmchildHurtbox>(true);
+
+            if (hurtbox != null)
+            {
+                hurtbox.ResetHit();
+            }
+
             RestartFlyingAudio();
 
             Modding.Logger.Log(
@@ -938,6 +1020,27 @@ namespace GrimmchildCoopMod
                 source.Stop();
                 return;
             }
+        }
+
+        private void PlayHitVibration()
+        {
+            InControl.InputDevice device =
+                InputManager.GetPlayer2Device();
+
+            if (device == null)
+                return;
+
+            StartCoroutine(HitVibrationRoutine(device));
+        }
+
+        private IEnumerator HitVibrationRoutine(
+            InControl.InputDevice device)
+        {
+            device.Vibrate(0.7f, 0.9f);
+
+            yield return new WaitForSecondsRealtime(0.12f);
+
+            device.StopVibration();
         }
     }
 }

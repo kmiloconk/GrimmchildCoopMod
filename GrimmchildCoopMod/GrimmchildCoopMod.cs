@@ -40,7 +40,7 @@ namespace GrimmchildCoopMod
 
         public override string GetVersion()
         {
-            return "1.2.1";
+            return "1.2.3";
         }
 
         public override void Initialize()
@@ -131,7 +131,13 @@ namespace GrimmchildCoopMod
             if (player1 == null)
                 return;
 
-            InputHandler.Instance.inputActions.Device = player1;
+            InputHandler.Instance.inputActions.Device =
+                player1;
+
+            InputHandler.Instance.gameController =
+                player1;
+
+            player1.RequestActivation();
         }
 
 
@@ -173,6 +179,33 @@ namespace GrimmchildCoopMod
         {
             List<IMenuMod.MenuEntry> menu =
                 new List<IMenuMod.MenuEntry>();
+
+
+            menu.Add(new IMenuMod.MenuEntry
+            {
+                Name = "Grimmchild ",
+
+                Description =
+                    "Choose which controller is used by Grimmchild.",
+
+                Values = new[]
+            {
+                "Controller 1",
+                "Controller 2"
+            },
+
+                Saver = option =>
+                {
+                    Settings.GrimmchildController = option;
+
+                    InputManager.ResetDevices();
+                },
+
+                Loader = () =>
+                {
+                    return Settings.GrimmchildController;
+                }
+            });
 
             menu.Add(new IMenuMod.MenuEntry
                 {
@@ -227,6 +260,7 @@ namespace GrimmchildCoopMod
                     : 0;
             }
         });
+            
 
             return menu;
         }

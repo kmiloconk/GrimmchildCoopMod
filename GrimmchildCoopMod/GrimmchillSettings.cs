@@ -4,5 +4,6 @@
     {
         public bool ScaleDamageWithNail = true;
         public bool GrimmchildVulnerable = true;
+        public int GrimmchildController = 1;
     }
 }

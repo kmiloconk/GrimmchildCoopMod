@@ -6,6 +6,7 @@ namespace GrimmchildCoopMod
     public class GrimmchildHurtbox : MonoBehaviour
     {
         private Player2Controller controller;
+        private bool hitProcessed;
 
         private void Awake()
         {
@@ -39,8 +40,16 @@ namespace GrimmchildCoopMod
             }
         }
 
+        public void ResetHit()
+        {
+            hitProcessed = false;
+        }
+
         private void TryReceiveDamage(Collider2D other)
         {
+            if (hitProcessed)
+                return;
+
             if (controller == null ||
                 controller.IsDead ||
                 other == null)
@@ -74,6 +83,8 @@ namespace GrimmchildCoopMod
                 LayerMask.LayerToName(other.gameObject.layer) +
                 " | Tipo: " +
                 (damageHero != null ? "DamageHero" : "Hazard"));
+
+            hitProcessed = true;
 
             controller.Kill();
         }

@@ -10,6 +10,8 @@ namespace GrimmchildCoopMod
 
         private static InputDevice player1Device;
         private static InputDevice player2Device;
+        private static bool previousAttackPressed;
+        private static InputDevice previousAttackDevice;
 
         private static bool devicesAssigned;
 
@@ -21,19 +23,33 @@ namespace GrimmchildCoopMod
             if (InControl.InputManager.Devices.Count < 2)
                 return false;
 
-            player1Device = InControl.InputManager.Devices[0];
-            player2Device = InControl.InputManager.Devices[1];
+            int grimmchildIndex =
+                GrimmchildCoopMod.Settings.GrimmchildController;
 
-            if (player1Device == null || player2Device == null)
+            // Por seguridad.
+            if (grimmchildIndex < 0 || grimmchildIndex > 1)
+                grimmchildIndex = 1;
+
+            int knightIndex =
+                grimmchildIndex == 0 ? 1 : 0;
+
+            player1Device =
+                InControl.InputManager.Devices[knightIndex];
+
+            player2Device =
+                InControl.InputManager.Devices[grimmchildIndex];
+
+            if (player1Device == null ||
+                player2Device == null)
+            {
                 return false;
+            }
 
             devicesAssigned = true;
 
-            Modding.Logger.Log(
-                "[GrimmchildCoopMod] Jugador 1: " + player1Device.Name);
+            Modding.Logger.Log("[GrimmchildCoopMod] Knight Controller: " +(knightIndex + 1) +" - " +player1Device.Name);
 
-            Modding.Logger.Log(
-                "[GrimmchildCoopMod] Jugador 2: " + player2Device.Name);
+            Modding.Logger.Log("[GrimmchildCoopMod] Grimmchild Controller: " +(grimmchildIndex + 1) +" - " + player2Device.Name);
 
             return true;
         }
@@ -73,17 +89,48 @@ namespace GrimmchildCoopMod
         {
             InputDevice device = GetPlayer2Device();
 
-            return device != null && device.Action3.WasPressed;
-        }
+            if (device == null)
+            {
+                previousAttackPressed = false;
+                previousAttackDevice = null;
+                return false;
+            }
 
+            /*
+             * Si cambió el mando asignado a Grimmchild,
+             * reiniciamos el estado del botón.
+             */
+            if (!object.ReferenceEquals(
+                previousAttackDevice,
+                device))
+            {
+                previousAttackDevice = device;
+                previousAttackPressed =
+                    device.Action3.IsPressed;
+
+                return false;
+            }
+
+            bool currentlyPressed =
+                device.Action3.IsPressed;
+
+            bool wasPressed =
+                currentlyPressed &&
+                !previousAttackPressed;
+
+            previousAttackPressed =
+                currentlyPressed;
+
+            return wasPressed;
+        }
         public static void ResetDevices()
         {
             player1Device = null;
             player2Device = null;
             devicesAssigned = false;
 
-            Modding.Logger.Log(
-                "[GrimmchildCoopMod] Asignación de mandos reiniciada.");
+            previousAttackPressed = false;
+            previousAttackDevice = null;
         }
     }
 }
