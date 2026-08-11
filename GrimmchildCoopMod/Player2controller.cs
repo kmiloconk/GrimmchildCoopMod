@@ -27,6 +27,7 @@ namespace GrimmchildCoopMod
         private bool teleporting;
         private bool dead;
         private bool reviving;
+        private bool sceneResetComplete = true;
 
         private MeshRenderer[] meshRenderers;
         private Collider2D[] grimmColliders;
@@ -121,6 +122,17 @@ namespace GrimmchildCoopMod
         private void UpdateBenchState()
         {
             bool currentlyAtBench = IsKnightResting();
+
+            /*
+             * Si el Caballero acaba de morir y estamos esperando
+             * la resurrección conjunta, NO usamos la rutina normal
+             * de resurrección de la banca.
+             */
+            if (GrimmchildCoopMod.ReviveAfterKnightDeathPending)
+            {
+                previousBenchState = currentlyAtBench;
+                return;
+            }
 
             if (currentlyAtBench && !previousBenchState)
             {
@@ -427,11 +439,14 @@ namespace GrimmchildCoopMod
 
         private void OnEnable()
         {
+            sceneResetComplete = false;
             StartCoroutine(ResetAfterSceneChange());
         }
 
         private IEnumerator ResetAfterSceneChange()
         {
+            sceneResetComplete = false;
+
             yield return null;
             yield return null;
 
@@ -442,13 +457,14 @@ namespace GrimmchildCoopMod
             teleporting = false;
             teleportTimer = 0f;
             attackCooldownTimer = 0f;
-            reviving = false;
 
             dead = GrimmchildCoopMod.GrimmchildIsDead;
 
             if (dead)
             {
                 ApplyDeadStateImmediately();
+
+                sceneResetComplete = true;
 
                 Modding.Logger.Log(
                     "[GrimmchildCoopMod] Grimmchild continúa muerto tras cambiar de escena.");
@@ -475,6 +491,8 @@ namespace GrimmchildCoopMod
             }
 
             RestartFlyingAudio();
+
+            sceneResetComplete = true;
 
             Modding.Logger.Log(
                 "[GrimmchildCoopMod] Grimmchild reiniciado después del cambio de escena.");
@@ -626,7 +644,8 @@ namespace GrimmchildCoopMod
             if (!dead || reviving)
                 return;
 
-            StartCoroutine(ReviveAfterKnightDeathRoutine());
+            StartCoroutine(
+                ReviveAfterKnightDeathRoutine());
         }
 
         private IEnumerator ReviveAfterKnightDeathRoutine()
@@ -634,29 +653,51 @@ namespace GrimmchildCoopMod
             reviving = true;
 
             Modding.Logger.Log(
-                "[GrimmchildCoopMod] Reviviendo a Grimmchild junto al Caballero.");
+                "[GrimmchildCoopMod] Esperando respawn del Caballero...");
 
-            if (HeroController.instance == null)
+            /*
+             * Esperamos a que ResetAfterSceneChange termine.
+             *
+             * Esto es lo que evita que esa rutina vuelva a ocultar
+             * a Grimmchild después de empezar a revivirlo.
+             */
+            while (!sceneResetComplete)
             {
-                reviving = false;
-                yield break;
+                yield return null;
             }
 
-            transform.position =
+            /*
+             * Esperamos también a que el Caballero exista
+             * correctamente en la nueva escena.
+             */
+            while (HeroController.instance == null)
+            {
+                yield return null;
+            }
+
+            // Dejamos pasar un par de frames extra.
+            yield return null;
+            yield return null;
+
+            Modding.Logger.Log(
+                "[GrimmchildCoopMod] Reviviendo a Grimmchild junto al Caballero.");
+
+            Vector3 heroPosition =
                 HeroController.instance.transform.position;
+
+            transform.position = heroPosition;
 
             if (body != null)
             {
                 body.simulated = true;
                 body.velocity = Vector2.zero;
-                body.position = transform.position;
+                body.position = heroPosition;
             }
 
             SetGrimmchildVisible(true);
 
             /*
-             * Usamos la entrada original para recuperar
-             * animación y sonido.
+             * Animación + sonido original de aparición.
              */
             if (controlFSM != null)
             {
@@ -671,22 +712,41 @@ namespace GrimmchildCoopMod
 
             dead = false;
             reviving = false;
-            resting = false;
 
             GrimmchildCoopMod.SetGrimmchildDead(false);
+            GrimmchildCoopMod.CompleteKnightDeathRevive();
 
-            if (controlFSM != null)
+            /*
+             * Normalmente el Caballero reaparece junto a una banca.
+             * Si el juego todavía lo considera sentado, Grimmchild
+             * entra directamente en su descanso.
+             */
+            if (IsKnightResting())
             {
-                controlFSM.SetState("Follow");
-            }
+                resting = true;
+                previousBenchState = true;
 
-            if (animator != null &&
-                !animator.IsPlaying("Fly 4"))
+                if (controlFSM != null)
+                {
+                    controlFSM.SetState("Rest Pause");
+                }
+            }
+            else
             {
-                animator.Play("Fly 4");
-            }
+                resting = false;
 
-            RestartFlyingAudio();
+                if (controlFSM != null)
+                {
+                    controlFSM.SetState("Follow");
+                }
+
+                if (animator != null)
+                {
+                    animator.Play("Fly 4");
+                }
+
+                RestartFlyingAudio();
+            }
 
             Modding.Logger.Log(
                 "[GrimmchildCoopMod] Grimmchild revivido después de la muerte del Caballero.");

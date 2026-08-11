@@ -12,12 +12,24 @@ namespace GrimmchildCoopMod
         IMenuMod
     {
         private static bool reviveGrimmchildAfterKnightDeath;
+
         public static bool GrimmchildIsDead { get; private set; }
 
         public static void SetGrimmchildDead(bool value)
         {
             GrimmchildIsDead = value;
         }
+
+        public static bool ReviveAfterKnightDeathPending
+        {
+            get { return reviveGrimmchildAfterKnightDeath; }
+        }
+
+        public static void CompleteKnightDeathRevive()
+        {
+            reviveGrimmchildAfterKnightDeath = false;
+        }
+
         private static GrimmchildCoopMod instance;
 
         private int preparedGrimmInstanceId;
@@ -28,7 +40,7 @@ namespace GrimmchildCoopMod
 
         public override string GetVersion()
         {
-            return "1.2.0";
+            return "1.2.1";
         }
 
         public override void Initialize()
@@ -94,12 +106,9 @@ namespace GrimmchildCoopMod
                 Log("Grimmchild preparado para Jugador 2.");
             }
 
-            
-            if (reviveGrimmchildAfterKnightDeath &&
-                controller != null)
-            {
-                reviveGrimmchildAfterKnightDeath = false;
 
+            if (reviveGrimmchildAfterKnightDeath && controller != null)
+            {
                 controller.ReviveAfterKnightDeath();
             }
         }
@@ -133,7 +142,9 @@ namespace GrimmchildCoopMod
 
             reviveGrimmchildAfterKnightDeath = true;
 
-            Log("El Caballero murió con Grimmchild muerto. Revivirá al reaparecer.");
+            Log(
+                "El Caballero murió con Grimmchild muerto. " +
+                "Revivirá al reaparecer.");
         }
 
 
