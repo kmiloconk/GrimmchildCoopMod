@@ -88,6 +88,12 @@ namespace GrimmchildCoopMod
 
         private void Update()
         {
+
+            InputManager.UpdateAttackState();
+
+            if (!sceneResetComplete)
+                return;
+
             UpdateBenchState();
 
             if (dead ||
@@ -104,16 +110,26 @@ namespace GrimmchildCoopMod
 
         private void FixedUpdate()
         {
-            if (dead || reviving)
+            if (dead ||
+                reviving ||
+                resting ||
+                receivingHit)
+            {
                 return;
+            }
 
             UpdateMovement();
         }
 
         private void UpdateMovement()
         {
-            if (body == null || teleporting || receivingHit)
+            if (body == null ||
+                teleporting ||
+                receivingHit ||
+                resting)
+            {
                 return;
+            }
 
             Vector2 input = InputManager.GetMovement();
 
@@ -131,11 +147,6 @@ namespace GrimmchildCoopMod
         {
             bool currentlyAtBench = IsKnightResting();
 
-            /*
-             * Si el Caballero acaba de morir y estamos esperando
-             * la resurrección conjunta, NO usamos la rutina normal
-             * de resurrección de la banca.
-             */
             if (GrimmchildCoopMod.ReviveAfterKnightDeathPending)
             {
                 previousBenchState = currentlyAtBench;
@@ -186,7 +197,14 @@ namespace GrimmchildCoopMod
                 body.velocity = Vector2.zero;
             }
 
-            controlFSM.SetState("Rest Pause");
+            
+            controlFSM.SetState("Rest Start");
+
+            
+            if (animator != null)
+            {
+                animator.Play("Fly 4");
+            }
         }
 
         private void StopResting()
@@ -434,10 +452,25 @@ namespace GrimmchildCoopMod
         {
             StopAllCoroutines();
 
+            if (animator != null)
+            {
+                animator.enabled = true;
+            }
+
+            if (controlFSM != null)
+            {
+                controlFSM.enabled = true;
+            }
+
             teleporting = false;
             teleportTimer = 0f;
             attackCooldownTimer = 0f;
+
             reviving = false;
+            resting = false;
+            receivingHit = false;
+
+            previousBenchState = false;
 
             if (body != null)
             {
@@ -461,6 +494,21 @@ namespace GrimmchildCoopMod
             body = GetComponent<Rigidbody2D>();
             controlFSM = GrimmSprite.GetControlFSM(gameObject);
             animator = GetComponent<tk2dSpriteAnimator>();
+
+            resting = false;
+            receivingHit = false;
+            reviving = false;
+            previousBenchState = false;
+
+            if (animator != null)
+            {
+                animator.enabled = true;
+            }
+
+            if (controlFSM != null)
+            {
+                controlFSM.enabled = true;
+            }
 
             teleporting = false;
             teleportTimer = 0f;
@@ -488,15 +536,7 @@ namespace GrimmchildCoopMod
                 body.velocity = Vector2.zero;
             }
 
-            if (controlFSM != null)
-            {
-                controlFSM.SetState("Follow");
-            }
-
-            if (animator != null)
-            {
-                animator.Play("Fly 4");
-            }
+            RestoreControlState();
 
             RestartFlyingAudio();
 
@@ -663,27 +703,17 @@ namespace GrimmchildCoopMod
             Modding.Logger.Log(
                 "[GrimmchildCoopMod] Esperando respawn del Caballero...");
 
-            /*
-             * Esperamos a que ResetAfterSceneChange termine.
-             *
-             * Esto es lo que evita que esa rutina vuelva a ocultar
-             * a Grimmchild después de empezar a revivirlo.
-             */
             while (!sceneResetComplete)
             {
                 yield return null;
             }
 
-            /*
-             * Esperamos también a que el Caballero exista
-             * correctamente en la nueva escena.
-             */
+           
             while (HeroController.instance == null)
             {
                 yield return null;
             }
 
-            // Dejamos pasar un par de frames extra.
             yield return null;
             yield return null;
 
@@ -704,12 +734,19 @@ namespace GrimmchildCoopMod
 
             SetGrimmchildVisible(true);
 
-            /*
-             * Animación + sonido original de aparición.
-             */
             if (controlFSM != null)
             {
-                controlFSM.SetState("Tele");
+                string currentState =
+                    controlFSM.ActiveStateName;
+
+                bool alreadyTeleporting =
+                    !string.IsNullOrEmpty(currentState) &&
+                    currentState.Contains("Tele");
+
+                if (!alreadyTeleporting)
+                {
+                    controlFSM.SetState("Tele");
+                }
             }
             else if (animator != null)
             {
@@ -1041,6 +1078,34 @@ namespace GrimmchildCoopMod
             yield return new WaitForSecondsRealtime(0.12f);
 
             device.StopVibration();
+        }
+
+        private void RestoreControlState()
+        {
+            if (controlFSM != null)
+            {
+                controlFSM.enabled = true;
+
+                if (!dead)
+                {
+                    controlFSM.SetState("Follow");
+                }
+            }
+
+            if (animator != null)
+            {
+                animator.enabled = true;
+
+                if (!dead)
+                {
+                    animator.Play("Fly 4");
+                }
+            }
+
+            receivingHit = false;
+            teleporting = false;
+            teleportTimer = 0f;
+            attackCooldownTimer = 0f;
         }
     }
 }

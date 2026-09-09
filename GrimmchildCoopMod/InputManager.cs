@@ -12,6 +12,7 @@ namespace GrimmchildCoopMod
         private static InputDevice player2Device;
         private static bool previousAttackPressed;
         private static InputDevice previousAttackDevice;
+        private static bool attackPressedThisFrame;
 
         private static bool devicesAssigned;
 
@@ -87,41 +88,7 @@ namespace GrimmchildCoopMod
 
         public static bool AttackWasPressed()
         {
-            InputDevice device = GetPlayer2Device();
-
-            if (device == null)
-            {
-                previousAttackPressed = false;
-                previousAttackDevice = null;
-                return false;
-            }
-
-            /*
-             * Si cambió el mando asignado a Grimmchild,
-             * reiniciamos el estado del botón.
-             */
-            if (!object.ReferenceEquals(
-                previousAttackDevice,
-                device))
-            {
-                previousAttackDevice = device;
-                previousAttackPressed =
-                    device.Action3.IsPressed;
-
-                return false;
-            }
-
-            bool currentlyPressed =
-                device.Action3.IsPressed;
-
-            bool wasPressed =
-                currentlyPressed &&
-                !previousAttackPressed;
-
-            previousAttackPressed =
-                currentlyPressed;
-
-            return wasPressed;
+            return attackPressedThisFrame;
         }
         public static void ResetDevices()
         {
@@ -131,6 +98,44 @@ namespace GrimmchildCoopMod
 
             previousAttackPressed = false;
             previousAttackDevice = null;
+            attackPressedThisFrame = false;
+        }
+
+        public static void UpdateAttackState()
+        {
+            InputDevice device = GetPlayer2Device();
+
+            if (device == null)
+            {
+                previousAttackPressed = false;
+                previousAttackDevice = null;
+                attackPressedThisFrame = false;
+                return;
+            }
+
+            if (!object.ReferenceEquals(
+                previousAttackDevice,
+                device))
+            {
+                previousAttackDevice = device;
+
+                previousAttackPressed =
+                    device.Action3.IsPressed;
+
+                attackPressedThisFrame = false;
+
+                return;
+            }
+
+            bool currentlyPressed =
+                device.Action3.IsPressed;
+
+            attackPressedThisFrame =
+                currentlyPressed &&
+                !previousAttackPressed;
+
+            previousAttackPressed =
+                currentlyPressed;
         }
     }
 }
