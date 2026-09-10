@@ -10,17 +10,21 @@ Cooperative Mod to turn the original Grimmchild into a fully playable companion 
 
 ## Features
 
-- The Knight is controlled by Player 1.
-- Grimmchild is controlled by Player 2.
-- Manual movement.
-- Manual attack.
-- Automatic teleport when too far from the Knight.
-- Original bench behavior is preserved.
-- Grimmchild remains permanently at Level 4.
-- The Grimmchild charm does not consume a notch.
+## Features
+
+- Local co-op support for two controllers.
+- The Knight and Grimmchild can be assigned to either controller.
+- Full manual control of Grimmchild's movement and attacks.
+- Automatic teleport when Grimmchild gets too far from the Knight.
+- Grimmchild sleeps alongside the Knight when resting at a bench.
+- Optional vulnerability to enemies, projectiles, and hazards.
+- Death and revival system for Grimmchild.
+- Grimmchild respawns when resting at a bench or alongside the Knight after death.
 - Configurable damage:
   - Original Level 4 Grimmchild damage.
-  - Damage scales with the Knight's current Nail level.
+  - Damage scales with the Knight's current Nail.
+- Grimmchild remains permanently at Level 4.
+- The Grimmchild charm is always equipped and does not consume any notches.
 
 ---
 
@@ -41,7 +45,7 @@ Cooperative Mod to turn the original Grimmchild into a fully playable companion 
 
 ---
 
-## Controls
+## Gameplay Mechanics
 
 ### Player 1
 
