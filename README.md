@@ -26,14 +26,37 @@ Cooperative Mod to turn the original Grimmchild into a fully playable companion 
 
 ## In-Game Options
 
-The mod includes an in-game menu that lets you choose how Grimmchild's damage behaves.
+<img width="808" height="251" alt="Captura de pantalla 2026-09-10 111906" src="https://github.com/user-attachments/assets/5908cde3-c7f5-42c8-8348-741b1f30f2d0" />
+
+
+The mod includes an in-game settings menu where you can customize Grimmchild's controller, damage, and vulnerability.
+
+### Controller
+
+Choose which connected controller is used to control Grimmchild.
+
+- **Controller 1** — Grimmchild is controlled by the first controller.
+- **Controller 2** — Grimmchild is controlled by the second controller.
+
+The other controller will automatically be assigned to the Knight.
+
+### Grimmchild Damage
+
+Choose how much damage Grimmchild deals.
 
 - **Original** — Uses the default Level 4 Grimmchild damage.
 - **Scale with Nail** — Grimmchild deals the same damage as the Knight's current Nail.
 
-<!-- Add screenshot here -->
+### Grimmchild Vulnerability
 
-<img width="918" height="319" alt="Captura de pantalla 2026-07-30 164319" src="https://github.com/user-attachments/assets/bc8850d2-da0b-4f1c-a52a-517707680ada" />
+Choose whether Grimmchild can take damage from enemies, projectiles, and hazards.
+
+- **Off** — Grimmchild cannot take damage.
+- **On** — Grimmchild can take damage. When defeated, Grimmchild will disappear and revive when resting at a bench. If the Knight dies while Grimmchild is defeated, Grimmchild will respawn with the Knight.
+
+<img width="943" height="449" alt="Captura de pantalla 2026-09-10 111936" src="https://github.com/user-attachments/assets/c6583d26-e395-44f4-b4a0-91d7f4574709" />
+
+
 
 ---
 
