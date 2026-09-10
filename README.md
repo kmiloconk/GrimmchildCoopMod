@@ -24,42 +24,6 @@ Cooperative Mod to turn the original Grimmchild into a fully playable companion 
 
 ---
 
-## In-Game Options
-
-<img width="808" height="251" alt="Captura de pantalla 2026-09-10 111906" src="https://github.com/user-attachments/assets/5908cde3-c7f5-42c8-8348-741b1f30f2d0" />
-
-
-The mod includes an in-game settings menu where you can customize Grimmchild's controller, damage, and vulnerability.
-
-### Controller
-
-Choose which connected controller is used to control Grimmchild.
-
-- **Controller 1** — Grimmchild is controlled by the first controller.
-- **Controller 2** — Grimmchild is controlled by the second controller.
-
-The other controller will automatically be assigned to the Knight.
-
-### Grimmchild Damage
-
-Choose how much damage Grimmchild deals.
-
-- **Original** — Uses the default Level 4 Grimmchild damage.
-- **Scale with Nail** — Grimmchild deals the same damage as the Knight's current Nail.
-
-### Grimmchild Vulnerability
-
-Choose whether Grimmchild can take damage from enemies, projectiles, and hazards.
-
-- **Off** — Grimmchild cannot take damage.
-- **On** — Grimmchild can take damage. When defeated, Grimmchild will disappear and revive when resting at a bench. If the Knight dies while Grimmchild is defeated, Grimmchild will respawn with the Knight.
-
-<img width="943" height="449" alt="Captura de pantalla 2026-09-10 111936" src="https://github.com/user-attachments/assets/c6583d26-e395-44f4-b4a0-91d7f4574709" />
-
-
-
----
-
 ## Requirements
 
 - Hollow Knight **1.5.78.11833**
@@ -102,6 +66,54 @@ Xbox **X** Button
 Automatic when Grimmchild gets too far from the Knight.
 
 <img width="384" height="288" alt="Teleport" src="https://github.com/user-attachments/assets/7fdfc9b0-102b-40db-a413-beaa9a767620" />
+
+### Sleep
+
+Grimmchild sleeps next to the Knight whenever you rest at a bench.
+
+<img width="384" height="288" alt="sleep" src="https://github.com/user-attachments/assets/f2e71050-54a7-47db-bc38-72407ab6803b" />
+
+### Death
+
+Grimmchild can be defeated by enemies, projectiles, and hazards. When defeated, Grimmchild will disappear and respawn the next time you rest at a bench. If the Knight dies while Grimmchild is defeated, they will respawn together.
+
+<img width="384" height="288" alt="dead" src="https://github.com/user-attachments/assets/c3535f55-8a06-4274-80e1-b74d00e2d220" />
+
+
+---
+## In-Game Options
+
+<img width="808" height="251" alt="Captura de pantalla 2026-09-10 111906" src="https://github.com/user-attachments/assets/5908cde3-c7f5-42c8-8348-741b1f30f2d0" />
+
+
+The mod includes an in-game settings menu where you can customize Grimmchild's controller, damage, and vulnerability.
+
+### Controller
+
+Choose which connected controller is used to control Grimmchild.
+
+- **Controller 1** — Grimmchild is controlled by the first controller.
+- **Controller 2** — Grimmchild is controlled by the second controller.
+
+The other controller will automatically be assigned to the Knight.
+
+### Grimmchild Damage
+
+Choose how much damage Grimmchild deals.
+
+- **Original** — Uses the default Level 4 Grimmchild damage.
+- **Scale with Nail** — Grimmchild deals the same damage as the Knight's current Nail.
+
+### Grimmchild Vulnerability
+
+Choose whether Grimmchild can take damage from enemies, projectiles, and hazards.
+
+- **Off** — Grimmchild cannot take damage.
+- **On** — Grimmchild can take damage. When defeated, Grimmchild will disappear and revive when resting at a bench. If the Knight dies while Grimmchild is defeated, Grimmchild will respawn with the Knight.
+
+<img width="943" height="449" alt="Captura de pantalla 2026-09-10 111936" src="https://github.com/user-attachments/assets/c6583d26-e395-44f4-b4a0-91d7f4574709" />
+
+
 
 ---
 
