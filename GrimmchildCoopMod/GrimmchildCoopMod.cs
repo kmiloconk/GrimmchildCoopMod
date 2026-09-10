@@ -11,6 +11,17 @@ namespace GrimmchildCoopMod
         IGlobalSettings<GrimmchildSettings>,
         IMenuMod
     {
+        private static bool knightRespawnPending;
+
+        public static bool KnightRespawnPending
+        {
+            get { return knightRespawnPending; }
+        }
+
+        public static void CompleteKnightRespawn()
+        {
+            knightRespawnPending = false;
+        }
         private static bool reviveGrimmchildAfterKnightDeath;
 
         public static bool GrimmchildIsDead { get; private set; }
@@ -40,7 +51,7 @@ namespace GrimmchildCoopMod
 
         public override string GetVersion()
         {
-            return "1.2.3";
+            return "1.3.0";
         }
 
         public override void Initialize()
@@ -78,6 +89,7 @@ namespace GrimmchildCoopMod
             if (HeroController.instance == null)
                 return;
 
+
             GameObject grimm =
                 GrimmSprite.GetGrimmchild();
 
@@ -111,6 +123,12 @@ namespace GrimmchildCoopMod
             {
                 controller.ReviveAfterKnightDeath();
             }
+
+
+            if (knightRespawnPending && !reviveGrimmchildAfterKnightDeath && controller != null)
+            {
+                controller.HandleKnightRespawn();
+            }
         }
 
 
@@ -143,14 +161,23 @@ namespace GrimmchildCoopMod
 
         private void OnKnightDead()
         {
-            if (!GrimmchildIsDead)
-                return;
+            
+            knightRespawnPending = true;
 
-            reviveGrimmchildAfterKnightDeath = true;
+            if (GrimmchildIsDead)
+            {
+                reviveGrimmchildAfterKnightDeath = true;
 
-            Log(
-                "El Caballero murió con Grimmchild muerto. " +
-                "Revivirá al reaparecer.");
+                Log(
+                    "El Caballero murió con Grimmchild muerto. " +
+                    "Revivirá al reaparecer.");
+            }
+            else
+            {
+                Log(
+                    "El Caballero murió con Grimmchild vivo. " +
+                    "Grimmchild se sincronizará con el respawn.");
+            }
         }
 
 

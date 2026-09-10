@@ -26,6 +26,9 @@ namespace GrimmchildCoopMod
         private bool animatorWasEnabled;
         private bool controlFsmWasEnabled;
 
+        private bool handlingKnightRespawn;
+
+        private bool respawnSleeping;
 
         private float attackCooldownTimer;
         private bool teleporting;
@@ -147,17 +150,43 @@ namespace GrimmchildCoopMod
         {
             bool currentlyAtBench = IsKnightResting();
 
-            if (GrimmchildCoopMod.ReviveAfterKnightDeathPending)
+            /*
+             * Estado especial después de que el Caballero
+             * haya reaparecido en una banca.
+             *
+             * Grimmchild ya está colocado dormido en el suelo.
+             * Solo esperamos a que el Caballero se levante.
+             */
+            if (respawnSleeping)
             {
-                previousBenchState = currentlyAtBench;
+                if (!currentlyAtBench &&
+                    previousBenchState)
+                {
+                    StartCoroutine(
+                        WakeFromRespawnRoutine());
+                }
+
+                previousBenchState =
+                    currentlyAtBench;
+
                 return;
             }
 
-            if (currentlyAtBench && !previousBenchState)
+            if (GrimmchildCoopMod.ReviveAfterKnightDeathPending)
+            {
+                previousBenchState =
+                    currentlyAtBench;
+
+                return;
+            }
+
+            if (currentlyAtBench &&
+                !previousBenchState)
             {
                 if (dead && !reviving)
                 {
-                    StartCoroutine(ReviveRoutine());
+                    StartCoroutine(
+                        ReviveRoutine());
                 }
                 else if (!dead)
                 {
@@ -171,7 +200,8 @@ namespace GrimmchildCoopMod
                 StopResting();
             }
 
-            previousBenchState = currentlyAtBench;
+            previousBenchState =
+                currentlyAtBench;
         }
 
         private bool IsKnightResting()
@@ -238,6 +268,51 @@ namespace GrimmchildCoopMod
 
             RestartFlyingAudio();
 
+        }
+
+        public void HandleKnightRespawn()
+        {
+            if (handlingKnightRespawn ||
+                dead ||
+                reviving)
+            {
+                return;
+            }
+
+            StartCoroutine(
+                HandleKnightRespawnRoutine());
+        }
+
+        private IEnumerator HandleKnightRespawnRoutine()
+        {
+            handlingKnightRespawn = true;
+
+            /*
+             * Esperamos a que el Caballero haya reaparecido
+             * realmente sentado en la banca.
+             */
+            while (HeroController.instance == null ||
+                   PlayerData.instance == null ||
+                   !PlayerData.instance.GetBool("atBench"))
+            {
+                yield return null;
+            }
+
+            /*
+             * Damos dos frames para que el juego termine
+             * de posicionar al Caballero.
+             */
+            yield return null;
+            yield return null;
+
+            EnterKnightRespawnSleep();
+
+            handlingKnightRespawn = false;
+
+            GrimmchildCoopMod.CompleteKnightRespawn();
+
+            Modding.Logger.Log(
+                "[GrimmchildCoopMod] Respawn del Caballero completado con Grimmchild dormido.");
         }
 
         private void ApplyDeadStateImmediately()
@@ -469,6 +544,8 @@ namespace GrimmchildCoopMod
             reviving = false;
             resting = false;
             receivingHit = false;
+            respawnSleeping = false;
+            handlingKnightRespawn = false;
 
             previousBenchState = false;
 
@@ -499,6 +576,8 @@ namespace GrimmchildCoopMod
             receivingHit = false;
             reviving = false;
             previousBenchState = false;
+            respawnSleeping = false;
+            handlingKnightRespawn = false;
 
             if (animator != null)
             {
@@ -701,15 +780,16 @@ namespace GrimmchildCoopMod
             reviving = true;
 
             Modding.Logger.Log(
-                "[GrimmchildCoopMod] Esperando respawn del Caballero...");
+                "[GrimmchildCoopMod] Esperando respawn del Caballero con Grimmchild muerto...");
 
             while (!sceneResetComplete)
             {
                 yield return null;
             }
 
-           
-            while (HeroController.instance == null)
+            while (HeroController.instance == null ||
+                   PlayerData.instance == null ||
+                   !PlayerData.instance.GetBool("atBench"))
             {
                 yield return null;
             }
@@ -717,94 +797,194 @@ namespace GrimmchildCoopMod
             yield return null;
             yield return null;
 
-            Modding.Logger.Log(
-                "[GrimmchildCoopMod] Reviviendo a Grimmchild junto al Caballero.");
-
-            Vector3 heroPosition =
-                HeroController.instance.transform.position;
-
-            transform.position = heroPosition;
-
-            if (body != null)
-            {
-                body.simulated = true;
-                body.velocity = Vector2.zero;
-                body.position = heroPosition;
-            }
-
-            SetGrimmchildVisible(true);
-
-            if (controlFSM != null)
-            {
-                string currentState =
-                    controlFSM.ActiveStateName;
-
-                bool alreadyTeleporting =
-                    !string.IsNullOrEmpty(currentState) &&
-                    currentState.Contains("Tele");
-
-                if (!alreadyTeleporting)
-                {
-                    controlFSM.SetState("Tele");
-                }
-            }
-            else if (animator != null)
-            {
-                animator.Play("Tele In 4");
-            }
-
-            yield return new WaitForSeconds(0.3f);
-
+            /*
+             * Revivimos lógicamente a Grimmchild.
+             */
             dead = false;
             reviving = false;
 
             GrimmchildCoopMod.SetGrimmchildDead(false);
-            GrimmchildCoopMod.CompleteKnightDeathRevive();
 
             /*
-             * Normalmente el Caballero reaparece junto a una banca.
-             * Si el juego todavía lo considera sentado, Grimmchild
-             * entra directamente en su descanso.
+             * Lo colocamos directamente dormido.
+             *
+             * Sin Tele.
+             * Sin Rest Start.
+             * Sin Fly 4.
              */
-            if (IsKnightResting())
-            {
-                resting = true;
-                previousBenchState = true;
+            EnterKnightRespawnSleep();
 
-                if (controlFSM != null)
-                {
-                    controlFSM.SetState("Rest Pause");
-                }
-            }
-            else
-            {
-                resting = false;
-
-                if (controlFSM != null)
-                {
-                    controlFSM.SetState("Follow");
-                }
-
-                if (animator != null)
-                {
-                    animator.Play("Fly 4");
-                }
-
-                RestartFlyingAudio();
-            }
-
-            GrimmchildHurtbox hurtbox = GetComponentInChildren<GrimmchildHurtbox>(true);
+            GrimmchildHurtbox hurtbox =
+                GetComponentInChildren<GrimmchildHurtbox>(true);
 
             if (hurtbox != null)
             {
                 hurtbox.ResetHit();
             }
 
+            /*
+             * MUY IMPORTANTE:
+             * hay dos flags pendientes cuando mueren ambos.
+             * Tenemos que limpiar LAS DOS para que no se
+             * ejecute HandleKnightRespawn después.
+             */
+            GrimmchildCoopMod.CompleteKnightDeathRevive();
+            GrimmchildCoopMod.CompleteKnightRespawn();
+
             Modding.Logger.Log(
-                "[GrimmchildCoopMod] Grimmchild revivido después de la muerte del Caballero.");
+                "[GrimmchildCoopMod] Grimmchild revivido directamente dormido junto al Caballero.");
         }
 
-        
+        private Vector3 GetKnightRespawnSleepPosition()
+        {
+            if (HeroController.instance == null)
+                return transform.position;
+
+            Vector3 heroPosition =
+                HeroController.instance.transform.position;
+
+            /*
+             * Buscamos suelo un poco al lado del Caballero.
+             */
+            float targetX =
+                heroPosition.x + 1.25f;
+
+            Vector2 rayOrigin =
+                new Vector2(
+                    targetX,
+                    heroPosition.y + 2f);
+
+            RaycastHit2D[] hits =
+                Physics2D.RaycastAll(
+                    rayOrigin,
+                    Vector2.down,
+                    6f);
+
+            foreach (RaycastHit2D hit in hits)
+            {
+                if (hit.collider == null)
+                    continue;
+
+                if (hit.collider.isTrigger)
+                    continue;
+
+                /*
+                 * Ignoramos colliders de Grimmchild.
+                 */
+                if (hit.collider.transform == transform ||
+                    hit.collider.transform.IsChildOf(transform))
+                {
+                    continue;
+                }
+
+                /*
+                 * Ignoramos colliders del Caballero.
+                 */
+                if (HeroController.instance != null &&
+                    (hit.collider.transform ==
+                        HeroController.instance.transform ||
+                     hit.collider.transform.IsChildOf(
+                        HeroController.instance.transform)))
+                {
+                    continue;
+                }
+
+                /*
+                 * Ponemos el centro de Grimmchild ligeramente
+                 * por encima del punto del suelo.
+                 */
+                return new Vector3(
+                    targetX,
+                    hit.point.y + 0.45f,
+                    transform.position.z);
+            }
+
+            /*
+             * Fallback por si no encontramos suelo.
+             */
+            return new Vector3(
+                heroPosition.x + 1.25f,
+                heroPosition.y - 0.8f,
+                transform.position.z);
+        }
+
+
+        private void EnterKnightRespawnSleep()
+        {
+            if (HeroController.instance == null)
+                return;
+
+            Vector3 sleepPosition =
+                GetKnightRespawnSleepPosition();
+
+            transform.position =
+                sleepPosition;
+
+            if (body != null)
+            {
+                body.simulated = true;
+                body.velocity = Vector2.zero;
+                body.position = sleepPosition;
+            }
+
+            SetGrimmchildVisible(true);
+
+            teleporting = false;
+            teleportTimer = 0f;
+            attackCooldownTimer = 0f;
+            receivingHit = false;
+
+            resting = true;
+            respawnSleeping = true;
+            previousBenchState = true;
+
+            /*
+             * NO Rest Start.
+             * NO Fly 4.
+             * NO Tele.
+             *
+             * Aparece directamente en el estado
+             * de estar dormido.
+             */
+            if (controlFSM != null)
+            {
+                controlFSM.enabled = true;
+                controlFSM.SetState("Rest Pause");
+            }
+
+            if (animator != null)
+            {
+                animator.enabled = true;
+            }
+
+            StopFlyingAudio();
+
+            Modding.Logger.Log(
+                "[GrimmchildCoopMod] Grimmchild colocado dormido después del respawn.");
+        }
+
+        private IEnumerator WakeFromRespawnRoutine()
+        {
+            if (!respawnSleeping)
+                yield break;
+
+            respawnSleeping = false;
+
+            /*
+             * Ya está dormido en Rest Pause.
+             * No necesitamos esperar a Rest Start como hace
+             * WakeUpRoutine().
+             */
+            if (controlFSM != null)
+            {
+                controlFSM.enabled = true;
+                controlFSM.SetState("Wake");
+            }
+
+            yield return StartCoroutine(
+                WaitForWake());
+        }
+
         private int GetHeroDamageLayer()
         {
             if (HeroController.instance == null)
@@ -1106,6 +1286,17 @@ namespace GrimmchildCoopMod
             teleporting = false;
             teleportTimer = 0f;
             attackCooldownTimer = 0f;
+        }
+
+        private void LateUpdate()
+        {
+            InControl.InputDevice knightDevice =
+                InputManager.GetPlayer1Device();
+
+            if (knightDevice != null)
+            {
+                knightDevice.RequestActivation();
+            }
         }
     }
 }
