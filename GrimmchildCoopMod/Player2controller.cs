@@ -1,7 +1,8 @@
-﻿using HutongGames.PlayMaker;
+﻿using GrimmchildCoop;
+using HutongGames.PlayMaker;
+using HutongGames.PlayMaker.Actions;
 using System.Collections;
 using UnityEngine;
-using HutongGames.PlayMaker.Actions;
 
 
 
@@ -40,7 +41,11 @@ namespace GrimmchildCoopMod
         private Collider2D[] grimmColliders;
         private const float HitStopDuration = 0.08f;
 
+        private const float HitInvulnerabilityDuration = 0.75f;
 
+        private int currentHealth;
+        private int maxHealth;
+        private bool invulnerableAfterHit;
 
         public bool IsDead
         {
@@ -64,6 +69,22 @@ namespace GrimmchildCoopMod
                 GetComponentsInChildren<Collider2D>(true);
 
             dead = GrimmchildCoopMod.GrimmchildIsDead;
+
+            maxHealth = GrimmchildHUD.GetGrimmchildMaxHealth();
+
+            if (GrimmchildCoopMod.GrimmchildCurrentHealth < 0)
+            {
+                GrimmchildCoopMod.GrimmchildCurrentHealth =
+                    dead ? 0 : maxHealth;
+            }
+
+            currentHealth =
+                Mathf.Clamp(
+                    GrimmchildCoopMod.GrimmchildCurrentHealth,
+                    0,
+                    maxHealth);
+
+            GrimmchildHUD.SetHealth(currentHealth);
 
             if (dead)
             {
@@ -98,6 +119,8 @@ namespace GrimmchildCoopMod
                 return;
 
             UpdateBenchState();
+
+            UpdateMaxHealth();
 
             if (dead ||
                 reviving ||
@@ -222,6 +245,8 @@ namespace GrimmchildCoopMod
             teleporting = false;
             resting = true;
 
+            RestoreFullHealth();
+
             if (body != null)
             {
                 body.velocity = Vector2.zero;
@@ -270,6 +295,42 @@ namespace GrimmchildCoopMod
 
         }
 
+        private void UpdateMaxHealth()
+        {
+            int newMaxHealth =
+                GrimmchildHUD.GetGrimmchildMaxHealth();
+
+            if (newMaxHealth == maxHealth)
+                return;
+
+            int difference =
+                newMaxHealth - maxHealth;
+
+            maxHealth =
+                newMaxHealth;
+
+            /*
+             * If the Knight gained a permanent mask,
+             * Grimmchild also gains the new HP immediately.
+             */
+            if (difference > 0 && !dead)
+            {
+                currentHealth += difference;
+            }
+
+            currentHealth =
+                Mathf.Clamp(
+                    currentHealth,
+                    0,
+                    maxHealth);
+
+            GrimmchildHUD.SetHealth(
+                currentHealth);
+
+            Modding.Logger.Log(
+                "[GrimmchildCoopMod] Grimmchild Max HP changed: " +
+                maxHealth);
+        }
         public void HandleKnightRespawn()
         {
             if (handlingKnightRespawn ||
@@ -546,7 +607,7 @@ namespace GrimmchildCoopMod
             receivingHit = false;
             respawnSleeping = false;
             handlingKnightRespawn = false;
-
+            invulnerableAfterHit = false;
             previousBenchState = false;
 
             if (body != null)
@@ -578,6 +639,7 @@ namespace GrimmchildCoopMod
             previousBenchState = false;
             respawnSleeping = false;
             handlingKnightRespawn = false;
+            invulnerableAfterHit = false;
 
             if (animator != null)
             {
@@ -805,13 +867,8 @@ namespace GrimmchildCoopMod
 
             GrimmchildCoopMod.SetGrimmchildDead(false);
 
-            /*
-             * Lo colocamos directamente dormido.
-             *
-             * Sin Tele.
-             * Sin Rest Start.
-             * Sin Fly 4.
-             */
+            RestoreFullHealth();
+
             EnterKnightRespawnSleep();
 
             GrimmchildHurtbox hurtbox =
@@ -1006,8 +1063,13 @@ namespace GrimmchildCoopMod
         }
         public void Kill()
         {
-            if (dead || reviving || receivingHit)
+            if (dead ||
+                reviving ||
+                receivingHit ||
+                invulnerableAfterHit)
+            {
                 return;
+            }
 
             StartCoroutine(HitRoutine());
         }
@@ -1021,11 +1083,9 @@ namespace GrimmchildCoopMod
                 body.velocity = Vector2.zero;
             }
 
-            // Feedback inmediato.
             PlayHitFlash();
             PlayHitVibration();
 
-            // Guardamos el estado actual antes de congelar.
             if (animator != null)
             {
                 animatorWasEnabled = animator.enabled;
@@ -1038,38 +1098,81 @@ namespace GrimmchildCoopMod
                 controlFSM.enabled = false;
             }
 
-            /*
-             * Durante este tiempo:
-             * - no se mueve
-             * - no cambia de frame
-             * - la FSM no avanza
-             *
-             * El resto del juego continúa normalmente.
-             */
-            yield return new WaitForSecondsRealtime(HitStopDuration);
+            yield return new WaitForSecondsRealtime(
+                HitStopDuration);
 
-            // Restauramos antes de iniciar el teletransporte.
             if (animator != null)
             {
-                animator.enabled = animatorWasEnabled;
+                animator.enabled =
+                    animatorWasEnabled;
             }
 
             if (controlFSM != null)
             {
-                controlFSM.enabled = controlFsmWasEnabled;
+                controlFSM.enabled =
+                    controlFsmWasEnabled;
             }
 
             receivingHit = false;
 
-            dead = true;
-            resting = false;
-            teleporting = false;
-            teleportTimer = 0f;
-            attackCooldownTimer = 0f;
+            currentHealth--;
 
-            GrimmchildCoopMod.SetGrimmchildDead(true);
+            if (currentHealth < 0)
+            {
+                currentHealth = 0;
+            }
 
-            StartCoroutine(DeathRoutine());
+            GrimmchildCoopMod.GrimmchildCurrentHealth = currentHealth;
+
+            GrimmchildHUD.SetHealth(currentHealth);
+
+            Modding.Logger.Log(
+                "[GrimmchildCoopMod] Grimmchild HP: " +
+                currentHealth +
+                "/" +
+                maxHealth);
+
+            if (currentHealth <= 0)
+            {
+                dead = true;
+                resting = false;
+                teleporting = false;
+                teleportTimer = 0f;
+                attackCooldownTimer = 0f;
+
+                GrimmchildCoopMod.SetGrimmchildDead(true);
+
+                StartCoroutine(
+                    DeathRoutine());
+
+                yield break;
+            }
+
+            /*
+             * Grimmchild survived.
+             * Give him a short invulnerability period so that
+             * OnTriggerStay/OnCollisionStay cannot drain all HP
+             * from a single contact.
+             */
+            invulnerableAfterHit = true;
+
+            GrimmchildHurtbox hurtbox =
+                GetComponentInChildren<GrimmchildHurtbox>(true);
+
+            if (hurtbox != null)
+            {
+                hurtbox.ResetHit();
+            }
+
+            yield return new WaitForSecondsRealtime(
+                HitInvulnerabilityDuration);
+
+            invulnerableAfterHit = false;
+
+            if (hurtbox != null)
+            {
+                hurtbox.ResetHit();
+            }
         }
 
 
@@ -1177,6 +1280,8 @@ namespace GrimmchildCoopMod
             resting = true;
 
             GrimmchildCoopMod.SetGrimmchildDead(false);
+
+            RestoreFullHealth();
 
             if (controlFSM != null)
             {
@@ -1297,6 +1402,25 @@ namespace GrimmchildCoopMod
             {
                 knightDevice.RequestActivation();
             }
+        }
+
+        private void RestoreFullHealth()
+        {
+            maxHealth = GrimmchildHUD.GetGrimmchildMaxHealth();
+
+            currentHealth = maxHealth;
+
+            invulnerableAfterHit = false;
+
+            GrimmchildCoopMod.GrimmchildCurrentHealth = currentHealth;
+
+            GrimmchildHUD.SetHealth(currentHealth);
+
+            Modding.Logger.Log(
+                "[GrimmchildCoopMod] Grimmchild HP restored: " +
+                currentHealth +
+                "/" +
+                maxHealth);
         }
     }
 }

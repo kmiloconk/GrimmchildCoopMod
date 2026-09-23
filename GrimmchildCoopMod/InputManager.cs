@@ -14,6 +14,8 @@ namespace GrimmchildCoopMod
         private static InputDevice previousAttackDevice;
         private static bool attackPressedThisFrame;
 
+        private static bool previousMenuPressed;
+
         private static bool devicesAssigned;
 
         public static bool AssignDevices()
@@ -99,6 +101,7 @@ namespace GrimmchildCoopMod
             previousAttackPressed = false;
             previousAttackDevice = null;
             attackPressedThisFrame = false;
+            previousMenuPressed = false;
         }
 
         public static void UpdateAttackState()
@@ -137,5 +140,34 @@ namespace GrimmchildCoopMod
             previousAttackPressed =
                 currentlyPressed;
         }
+
+        public static bool KnightQuickMapIsPressed()
+        {
+            if (InputHandler.Instance == null ||
+                InputHandler.Instance.inputActions == null)
+            {
+                return false;
+            }
+
+            return InputHandler.Instance
+                .inputActions
+                .quickMap
+                .IsPressed;
+        }
+
+        public static bool KnightInventoryWasPressed()
+        {
+            if (InputHandler.Instance == null ||
+                InputHandler.Instance.inputActions == null)
+            {
+                return false;
+            }
+
+            return InputHandler.Instance
+                .inputActions
+                .openInventory
+                .WasPressed;
+        }
+
     }
 }

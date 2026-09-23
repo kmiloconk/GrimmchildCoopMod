@@ -1,4 +1,5 @@
-﻿using InControl;
+﻿using GrimmchildCoop;
+using InControl;
 using Modding;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,6 +14,9 @@ namespace GrimmchildCoopMod
     {
         private static bool knightRespawnPending;
 
+        public static int GrimmchildCurrentHealth = -1;
+
+        private bool hudCreated;
         public static bool KnightRespawnPending
         {
             get { return knightRespawnPending; }
@@ -49,9 +53,11 @@ namespace GrimmchildCoopMod
         public static GrimmchildSettings Settings =
             new GrimmchildSettings();
 
+        
+
         public override string GetVersion()
         {
-            return "1.3.0";
+            return "1.4.0";
         }
 
         public override void Initialize()
@@ -60,7 +66,8 @@ namespace GrimmchildCoopMod
             ModHooks.GetPlayerIntHook += OnGetPlayerInt;
             ModHooks.HeroUpdateHook += OnHeroUpdate;
             ModHooks.AfterPlayerDeadHook += OnKnightDead;
-
+            ModHooks.BeforeSceneLoadHook += OnBeforeSceneLoad;
+            GrimmchildHUD.SetHealth(3);
             Log("GrimmchildCoopMod inicializado.");
         }
 
@@ -129,6 +136,32 @@ namespace GrimmchildCoopMod
             {
                 controller.HandleKnightRespawn();
             }
+
+            if (!hudCreated)
+            {
+                GrimmchildHUD.Create();
+
+                if (GrimmchildHUD.IsCreated)
+                {
+                    hudCreated = true;
+                }
+            }
+
+            if (hudCreated)
+            {
+                GrimmchildHUD.UpdateHealth();
+            }
+
+
+            
+
+        }
+
+        private string OnBeforeSceneLoad(string sceneName)
+        {
+            GrimmchildHUD.OnSceneTransitionStart();
+
+            return sceneName;
         }
 
 
