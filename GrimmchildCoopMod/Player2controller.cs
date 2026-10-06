@@ -47,6 +47,9 @@ namespace GrimmchildCoopMod
         private int maxHealth;
         private bool invulnerableAfterHit;
 
+        private bool deathSequenceComplete;
+
+
         public bool IsDead
         {
             get { return dead; }
@@ -60,7 +63,7 @@ namespace GrimmchildCoopMod
 
             CreateHurtbox();
 
-            
+
 
             meshRenderers =
                 GetComponentsInChildren<MeshRenderer>(true);
@@ -69,6 +72,8 @@ namespace GrimmchildCoopMod
                 GetComponentsInChildren<Collider2D>(true);
 
             dead = GrimmchildCoopMod.GrimmchildIsDead;
+
+            deathSequenceComplete = dead;
 
             maxHealth = GrimmchildHUD.GetGrimmchildMaxHealth();
 
@@ -112,7 +117,6 @@ namespace GrimmchildCoopMod
 
         private void Update()
         {
-
             InputManager.UpdateAttackState();
 
             if (!sceneResetComplete)
@@ -122,10 +126,14 @@ namespace GrimmchildCoopMod
 
             UpdateMaxHealth();
 
-            if (dead ||
-                reviving ||
-                resting ||
-                receivingHit)
+            if (dead && deathSequenceComplete && !reviving)
+            {
+                SetGrimmchildVisible(false);
+                StopDeadIdleAudio();
+            }
+
+
+            if (dead ||reviving ||resting ||receivingHit)
             {
                 return;
             }
@@ -173,13 +181,7 @@ namespace GrimmchildCoopMod
         {
             bool currentlyAtBench = IsKnightResting();
 
-            /*
-             * Estado especial después de que el Caballero
-             * haya reaparecido en una banca.
-             *
-             * Grimmchild ya está colocado dormido en el suelo.
-             * Solo esperamos a que el Caballero se levante.
-             */
+            
             if (respawnSleeping)
             {
                 if (!currentlyAtBench &&
@@ -252,10 +254,10 @@ namespace GrimmchildCoopMod
                 body.velocity = Vector2.zero;
             }
 
-            
+
             controlFSM.SetState("Rest Start");
 
-            
+
             if (animator != null)
             {
                 animator.Play("Fly 4");
@@ -379,11 +381,12 @@ namespace GrimmchildCoopMod
         private void ApplyDeadStateImmediately()
         {
             dead = true;
+            deathSequenceComplete = true;
             reviving = false;
             resting = false;
             teleporting = false;
 
-            StopFlyingAudio();
+            StopAllGrimmchildAudio();
             SetGrimmchildVisible(false);
 
             if (body != null)
@@ -864,6 +867,7 @@ namespace GrimmchildCoopMod
              */
             dead = false;
             reviving = false;
+            deathSequenceComplete = false;
 
             GrimmchildCoopMod.SetGrimmchildDead(false);
 
@@ -1202,7 +1206,8 @@ namespace GrimmchildCoopMod
             yield return new WaitForSeconds(0.25f);
 
             SetGrimmchildVisible(false);
-            StopFlyingAudio();
+            StopAllGrimmchildAudio();
+            deathSequenceComplete = true;
 
             if (controlFSM != null)
             {
@@ -1278,6 +1283,7 @@ namespace GrimmchildCoopMod
             dead = false;
             reviving = false;
             resting = true;
+            deathSequenceComplete = false;
 
             GrimmchildCoopMod.SetGrimmchildDead(false);
 
@@ -1341,6 +1347,44 @@ namespace GrimmchildCoopMod
 
                 source.Stop();
                 return;
+            }
+        }
+
+        private void StopAllGrimmchildAudio()
+        {
+            AudioSource[] audioSources =
+                GetComponentsInChildren<AudioSource>(true);
+
+            foreach (AudioSource source in audioSources)
+            {
+                if (source == null)
+                    continue;
+
+                source.Stop();
+            }
+        }
+
+        private void StopDeadIdleAudio()
+        {
+            if (!dead || !deathSequenceComplete)
+                return;
+
+            AudioSource[] audioSources =
+                GetComponentsInChildren<AudioSource>(true);
+
+            foreach (AudioSource source in audioSources)
+            {
+                if (source == null ||
+                    source.clip == null)
+                {
+                    continue;
+                }
+
+                if (source.clip.name == "Grimmbat_idle" &&
+                    source.isPlaying)
+                {
+                    source.Stop();
+                }
             }
         }
 
@@ -1422,5 +1466,9 @@ namespace GrimmchildCoopMod
                 "/" +
                 maxHealth);
         }
+
+        
+
+        
     }
 }

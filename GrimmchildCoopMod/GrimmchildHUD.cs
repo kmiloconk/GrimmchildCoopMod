@@ -22,7 +22,7 @@ namespace GrimmchildCoop
         private static Sprite flameOnSprite;
         private static Sprite flameTransitionSprite;
         private static Sprite flameOffSprite;
-
+        private static AudioClip flameExtinguishClip;
 
         private static readonly List<Image> flameOnImages =
             new List<Image>();
@@ -137,12 +137,41 @@ namespace GrimmchildCoop
 
             UpdateHealth();
 
-            controller.Initialize(
-                hudRoot.transform,
-                canvasGroup);
+            controller.Initialize(hudRoot.transform, canvasGroup);
+
+
+            flameExtinguishClip = FindAudioClip("grimmchild_fireball_shoot");
 
             Modding.Logger.Log(
                 "[GrimmchildCoopMod] Grimmchild HUD created.");
+
+        }
+
+
+
+        private static AudioClip FindAudioClip(string clipName)
+        {
+            AudioClip[] clips =
+                Resources.FindObjectsOfTypeAll<AudioClip>();
+
+            foreach (AudioClip clip in clips)
+            {
+                if (clip != null &&
+                    clip.name == clipName)
+                {
+                    Modding.Logger.Log(
+                        "[GrimmchildCoopMod] AudioClip found: " +
+                        clipName);
+
+                    return clip;
+                }
+            }
+
+            Modding.Logger.Log(
+                "[GrimmchildCoopMod] AudioClip not found: " +
+                clipName);
+
+            return null;
         }
 
         private static void CreateHealthFlames()
@@ -509,6 +538,20 @@ namespace GrimmchildCoop
             flameOffImages.Clear();
         }
 
+        public static void PlayFlameExtinguishSound()
+        {
+            if (flameExtinguishClip == null)
+                return;
+
+            if (hudRoot == null)
+                return;
+
+            AudioSource.PlayClipAtPoint(
+                flameExtinguishClip,
+                Vector3.zero,
+                1.5f);
+        }
+
         public static void Destroy()
         {
             if (hudRoot != null)
@@ -527,6 +570,7 @@ namespace GrimmchildCoop
             flameOnSprite = null;
             flameTransitionSprite = null;
             flameOffSprite = null;
+            flameExtinguishClip = null;
 
             flameOnImages.Clear();
             flameTransitionImages.Clear();
@@ -544,7 +588,7 @@ namespace GrimmchildCoop
             }
         }
 
-        
+
     }
 
     /*
@@ -578,7 +622,7 @@ namespace GrimmchildCoop
         private bool waitingForFadeInDelay;
 
         private float sceneFadeInTimer;
-        
+
         private const float PausedAlpha = 0.40f;
 
         private Transform hudTransform;
@@ -590,7 +634,7 @@ namespace GrimmchildCoop
         private bool initialized;
         private bool wasPaused;
 
-        
+
 
         private Coroutine healthAnimation;
 
@@ -790,15 +834,7 @@ namespace GrimmchildCoop
             {
                 wasPaused = false;
             }
-            /*
- * ==================================================
- * QUICK MAP
- * ==================================================
- *
- * The native HUD shrinks while the quick map is open.
- * Grimmchild's HUD remains visible, but darkened,
- * just like when the game is paused.
- */
+
 
             if (InputManager.KnightQuickMapIsPressed())
             {
@@ -811,31 +847,23 @@ namespace GrimmchildCoop
 
                 return;
             }
+
+
             /*
              * ==================================================
              * NORMAL GAMEPLAY
              * ==================================================
              */
 
-            if (ui.uiState == UIState.PLAYING ||ui.uiState == UIState.CUTSCENE)
+            if (ui.uiState == UIState.PLAYING || ui.uiState == UIState.CUTSCENE)
             {
                 SyncWithNativeHUD();
             }
 
-            /*
-     * ==================================================
-     * TEMPORARY SCALE TEST
-     * ==================================================
-     */
-
-            if (Input.GetKey(KeyCode.F8))
-            {
-                Modding.Logger.Log("[GrimmchildCoopMod] HUD TEST: F8 pressed - scaling down");
-                hudTransform.localScale =
-                    new Vector3(0.5f, 0.5f, 1f);
-            }
 
         }
+
+
 
         /*
          * ======================================================
@@ -904,6 +932,8 @@ namespace GrimmchildCoop
                 {
                     transition.enabled = true;
                 }
+
+                GrimmchildHUD.PlayFlameExtinguishSound();
 
                 yield return new WaitForSecondsRealtime(
                     FlameTransitionTime);
@@ -982,6 +1012,8 @@ namespace GrimmchildCoop
                 {
                     transition.enabled = true;
                 }
+
+                GrimmchildHUD.PlayFlameExtinguishSound();
 
                 yield return new WaitForSecondsRealtime(
                     FlameTransitionTime);

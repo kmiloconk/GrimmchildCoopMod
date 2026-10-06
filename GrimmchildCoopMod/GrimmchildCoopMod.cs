@@ -45,7 +45,6 @@ namespace GrimmchildCoopMod
             reviveGrimmchildAfterKnightDeath = false;
         }
 
-        private static GrimmchildCoopMod instance;
 
         private int preparedGrimmInstanceId;
 
@@ -53,7 +52,7 @@ namespace GrimmchildCoopMod
         public static GrimmchildSettings Settings =
             new GrimmchildSettings();
 
-        
+
 
         public override string GetVersion()
         {
@@ -62,7 +61,6 @@ namespace GrimmchildCoopMod
 
         public override void Initialize()
         {
-            instance = this;
             ModHooks.GetPlayerIntHook += OnGetPlayerInt;
             ModHooks.HeroUpdateHook += OnHeroUpdate;
             ModHooks.AfterPlayerDeadHook += OnKnightDead;
@@ -153,7 +151,7 @@ namespace GrimmchildCoopMod
             }
 
 
-            
+
 
         }
 
@@ -194,7 +192,7 @@ namespace GrimmchildCoopMod
 
         private void OnKnightDead()
         {
-            
+
             knightRespawnPending = true;
 
             if (GrimmchildIsDead)
@@ -268,33 +266,33 @@ namespace GrimmchildCoopMod
             });
 
             menu.Add(new IMenuMod.MenuEntry
-                {
-                    Name = "Grimmchild Damage",
+            {
+                Name = "Grimmchild Damage",
 
-                    Description =
+                Description =
                         "Original damage or scaling with the Knight's current nail damage.",
 
-                    Values = new[]
+                Values = new[]
                 {
                     "Original",
                     "Scale with Nail"
                 },
 
-                    Saver = option =>
-                    {
-                        Settings.ScaleDamageWithNail =
-                            option == 1;
-                    },
+                Saver = option =>
+                {
+                    Settings.ScaleDamageWithNail =
+                        option == 1;
+                },
 
-                    Loader = () =>
-                    {
-                        return Settings.ScaleDamageWithNail
-                            ? 1
-                            : 0;
-                    }
-                });
+                Loader = () =>
+                {
+                    return Settings.ScaleDamageWithNail
+                        ? 1
+                        : 0;
+                }
+            });
 
-            menu.Add( new IMenuMod.MenuEntry
+            menu.Add(new IMenuMod.MenuEntry
             {
                 Name = "Grimmchild Vulnerability",
 
@@ -308,19 +306,19 @@ namespace GrimmchildCoopMod
             },
 
                 Saver = option =>
-            {
-                Settings.GrimmchildVulnerable =
-                    option == 1;
-            },
+                {
+                    Settings.GrimmchildVulnerable =
+                        option == 1;
+                },
 
-            Loader = () =>
-            {
-                return Settings.GrimmchildVulnerable
-                    ? 1
-                    : 0;
-            }
-        });
-            
+                Loader = () =>
+                {
+                    return Settings.GrimmchildVulnerable
+                        ? 1
+                        : 0;
+                }
+            });
+
 
             return menu;
         }

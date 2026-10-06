@@ -14,7 +14,7 @@ namespace GrimmchildCoopMod
         private static InputDevice previousAttackDevice;
         private static bool attackPressedThisFrame;
 
-        private static bool previousMenuPressed;
+        
 
         private static bool devicesAssigned;
 
@@ -50,9 +50,9 @@ namespace GrimmchildCoopMod
 
             devicesAssigned = true;
 
-            Modding.Logger.Log("[GrimmchildCoopMod] Knight Controller: " +(knightIndex + 1) +" - " +player1Device.Name);
+            Modding.Logger.Log("[GrimmchildCoopMod] Knight Controller: " + (knightIndex + 1) + " - " + player1Device.Name);
 
-            Modding.Logger.Log("[GrimmchildCoopMod] Grimmchild Controller: " +(grimmchildIndex + 1) +" - " + player2Device.Name);
+            Modding.Logger.Log("[GrimmchildCoopMod] Grimmchild Controller: " + (grimmchildIndex + 1) + " - " + player2Device.Name);
 
             return true;
         }
@@ -101,7 +101,6 @@ namespace GrimmchildCoopMod
             previousAttackPressed = false;
             previousAttackDevice = null;
             attackPressedThisFrame = false;
-            previousMenuPressed = false;
         }
 
         public static void UpdateAttackState()
@@ -155,19 +154,6 @@ namespace GrimmchildCoopMod
                 .IsPressed;
         }
 
-        public static bool KnightInventoryWasPressed()
-        {
-            if (InputHandler.Instance == null ||
-                InputHandler.Instance.inputActions == null)
-            {
-                return false;
-            }
-
-            return InputHandler.Instance
-                .inputActions
-                .openInventory
-                .WasPressed;
-        }
 
     }
 }
