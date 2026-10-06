@@ -100,7 +100,8 @@ Lost flames are restored when Grimmchild recovers health at a bench.
 
 Grimmchild's remaining health persists when moving between rooms.
 
-<img width="306" height="116" alt="recarganew1" src="https://github.com/user-attachments/assets/9fd33d52-03f4-427f-adfd-3a4e04eeb30e" />
+<img width="306" height="116" alt="recarganew1" src="https://github.com/user-attachments/assets/9fd33d52-03f4-427f-adfd-3a4e04eeb30e" />.
+
 
 <img width="384" height="288" alt="hit" src="https://github.com/user-attachments/assets/d064a7a3-31f2-4c16-8f1d-2f2e581bc38e" />
 
