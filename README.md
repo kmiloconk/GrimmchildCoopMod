@@ -79,7 +79,8 @@ Press the Xbox **X** button to fire Grimmchild's projectile attack.
 
 If Grimmchild gets too far away from the Knight, the original Grimmchild teleport sequence is triggered automatically to bring them back.
 
-<img width="384" height="288" alt="Teleport" src="https://github.com/user-attachments/assets/7fdfc9b0-102b-40db-a413-beaa9a767620" />
+<img width="384" height="288" alt="tpnew" src="https://github.com/user-attachments/assets/0a9e9c2f-ac4d-4298-ac27-9918a34b727e" />
+
 
 ### Resting
 
