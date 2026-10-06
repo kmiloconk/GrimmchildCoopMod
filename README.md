@@ -134,6 +134,7 @@ The flames represent Grimmchild's remaining health:
 <img width="306" height="116" alt="recarganew1" src="https://github.com/user-attachments/assets/9fd33d52-03f4-427f-adfd-3a4e04eeb30e" />
 <img width="1916" height="256" alt="Captura de pantalla 2026-10-05 235443" src="https://github.com/user-attachments/assets/513fdec0-60e0-4859-acf7-ee62ec786ec2" />
 <img width="1919" height="254" alt="hud full" src="https://github.com/user-attachments/assets/f310123c-0602-46ce-aff4-5fc9def9df6a" />
+
 ---
 
 ## In-Game Options
