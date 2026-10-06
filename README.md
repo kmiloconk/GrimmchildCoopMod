@@ -99,7 +99,7 @@ Lost flames are restored when Grimmchild recovers health at a bench.
 
 Grimmchild's remaining health persists when moving between rooms.
 
-<img width="384" height="288" alt="hit" src="https://github.com/user-attachments/assets/28b75baa-ff77-4e23-bf51-b77bd7690a09" />
+<img width="384" height="288" alt="hit" src="https://github.com/user-attachments/assets/d064a7a3-31f2-4c16-8f1d-2f2e581bc38e" />
 
 
 ### Death
@@ -112,7 +112,8 @@ Resting at a bench revives Grimmchild with full health.
 
 If the Knight dies while Grimmchild is already defeated, Grimmchild will respawn alongside the Knight. Grimmchild initially appears sleeping beside the Knight and wakes up when the Knight leaves the bench.
 
-<img width="384" height="288" alt="Grimmchild defeated" src="https://github.com/user-attachments/assets/c3535f55-8a06-4274-80e1-b74d00e2d220" />
+<img width="384" height="288" alt="deadnew" src="https://github.com/user-attachments/assets/ce50436f-b02b-4c15-922e-54db52f3a781" />
+
 
 ---
 
