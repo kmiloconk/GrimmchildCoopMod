@@ -2,25 +2,32 @@
 
 **Version 1.4.2**
 
-Cooperative Mod to turn the original Grimmchild into a fully playable companion controlled by a second player. Designed for local cooperative play while preserving the original feel of Hollow Knight.
+GrimmchildCoopMod turns the original Grimmchild into a fully playable companion controlled by a second player.
 
-<img width="1919" height="1079" alt="hud" src="https://github.com/user-attachments/assets/c430024f-c5d0-4397-b94d-0fb1cff5ad31" />
+Designed for local cooperative play while preserving the original look, animations, sounds, and behavior of Grimmchild as much as possible.
 
+<img width="1919" height="1079" alt="Grimmchild Co-op HUD" src="https://github.com/user-attachments/assets/c430024f-c5d0-4397-b94d-0fb1cff5ad31" />
 
 ---
 
 ## Features
 
-## Features
-
 - Local co-op support for two controllers.
-- The Knight and Grimmchild can be assigned to either controller.
+- The Knight and Grimmchild can be assigned independently to either controller.
 - Full manual control of Grimmchild's movement and attacks.
 - Automatic teleport when Grimmchild gets too far from the Knight.
 - Grimmchild sleeps alongside the Knight when resting at a bench.
 - Optional vulnerability to enemies, projectiles, and hazards.
-- Death and revival system for Grimmchild.
-- Grimmchild respawns when resting at a bench or alongside the Knight after death.
+- Complete health, death, and revival system for Grimmchild.
+- Custom Grimmchild health HUD based on the original Grimm Troupe visuals.
+- Grimmchild's maximum health scales with the Knight's maximum health.
+- Grimmchild loses one flame from the HUD whenever damage is taken.
+- Grimmchild's health and HUD persist between rooms.
+- Health is fully restored when resting at a bench.
+- If Grimmchild is defeated, they remain dead between rooms until revived.
+- Grimmchild revives when the Knight rests at a bench.
+- If the Knight dies while Grimmchild is defeated, both respawn together.
+- Grimmchild uses the original disappearance animation, effects, and sounds when defeated.
 - Configurable damage:
   - Original Level 4 Grimmchild damage.
   - Damage scales with the Knight's current Nail.
@@ -48,48 +55,86 @@ Cooperative Mod to turn the original Grimmchild into a fully playable companion 
 
 ## Gameplay Mechanics
 
-### Player 1
+### Knight
 
-Controls the Knight normally.
+The Knight is controlled normally using the controller assigned to them.
 
-### Player 2
+### Grimmchild
 
-### Move
+The second player takes direct control of Grimmchild.
 
-Left Stick
+### Movement
+
+Use the **Left Stick** to freely move Grimmchild.
 
 <img width="384" height="288" alt="Movement" src="https://github.com/user-attachments/assets/fdc01ce6-9f93-4e27-9952-b96d1da3cb98" />
 
 ### Attack
 
-Xbox **X** Button
+Press the Xbox **X** button to fire Grimmchild's projectile attack.
 
 <img width="384" height="288" alt="Attack" src="https://github.com/user-attachments/assets/3a21adbe-aeed-44af-ab1d-24b4c574e18e" />
 
 ### Teleport
 
-Automatic when Grimmchild gets too far from the Knight.
+If Grimmchild gets too far away from the Knight, the original Grimmchild teleport sequence is triggered automatically to bring them back.
 
 <img width="384" height="288" alt="Teleport" src="https://github.com/user-attachments/assets/7fdfc9b0-102b-40db-a413-beaa9a767620" />
 
-### Sleep
+### Resting
 
-Grimmchild sleeps next to the Knight whenever you rest at a bench.
+When the Knight rests at a bench, Grimmchild lands and sleeps beside them.
 
-<img width="384" height="288" alt="sleep" src="https://github.com/user-attachments/assets/f2e71050-54a7-47db-bc38-72407ab6803b" />
+Grimmchild's health is fully restored while resting.
+
+<img width="384" height="288" alt="Grimmchild sleeping" src="https://github.com/user-attachments/assets/f2e71050-54a7-47db-bc38-72407ab6803b" />
+
+### Health
+
+When **Grimmchild Vulnerability** is enabled, Grimmchild has their own health system.
+
+Grimmchild's maximum health is based on the Knight's current maximum health. Taking damage removes one health point and one flame from the Grimmchild HUD.
+
+Lost flames are restored when Grimmchild recovers health at a bench.
+
+Grimmchild's remaining health persists when moving between rooms.
+
+<!-- Optional: Add a screenshot or GIF showing the health HUD and flames here. -->
 
 ### Death
 
-Grimmchild can be defeated by enemies, projectiles, and hazards. When defeated, Grimmchild will disappear and respawn the next time you rest at a bench. If the Knight dies while Grimmchild is defeated, they will respawn together.
+When Grimmchild reaches zero health, they are defeated and disappear using their original Grimmchild despawn animation, sound, and visual effect.
 
-<img width="384" height="288" alt="dead" src="https://github.com/user-attachments/assets/c3535f55-8a06-4274-80e1-b74d00e2d220" />
+Grimmchild remains defeated when moving between rooms and cannot be controlled until revived.
 
+Resting at a bench revives Grimmchild with full health.
+
+If the Knight dies while Grimmchild is already defeated, Grimmchild will respawn alongside the Knight. Grimmchild initially appears sleeping beside the Knight and wakes up when the Knight leaves the bench.
+
+<img width="384" height="288" alt="Grimmchild defeated" src="https://github.com/user-attachments/assets/c3535f55-8a06-4274-80e1-b74d00e2d220" />
 
 ---
+
+## Grimmchild HUD
+
+Grimmchild has a dedicated health display inspired by the original Grimm Troupe interface.
+
+The flames represent Grimmchild's remaining health:
+
+- Each flame represents one HP.
+- Taking damage removes one flame.
+- Lost flames return when health is restored.
+- The HUD updates automatically if the Knight gains additional permanent health.
+- Grimmchild's current health and flames persist between rooms.
+- When Grimmchild is defeated, the HUD reflects their defeated state.
+
+<!-- Recommended: Add a close-up screenshot or GIF of the HUD here. -->
+
+---
+
 ## In-Game Options
 
-<img width="808" height="251" alt="Captura de pantalla 2026-09-10 111906" src="https://github.com/user-attachments/assets/5908cde3-c7f5-42c8-8348-741b1f30f2d0" />
-
+<img width="808" height="251" alt="Grimmchild Co-op settings" src="https://github.com/user-attachments/assets/5908cde3-c7f5-42c8-8348-741b1f30f2d0" />
 
 The mod includes an in-game settings menu where you can customize Grimmchild's controller, damage, and vulnerability.
 
@@ -100,34 +145,43 @@ Choose which connected controller is used to control Grimmchild.
 - **Controller 1** — Grimmchild is controlled by the first controller.
 - **Controller 2** — Grimmchild is controlled by the second controller.
 
-The other controller will automatically be assigned to the Knight.
+The other controller is assigned to the Knight.
 
 ### Grimmchild Damage
 
 Choose how much damage Grimmchild deals.
 
-- **Original** — Uses the default Level 4 Grimmchild damage.
+- **Original** — Uses the original Level 4 Grimmchild damage.
 - **Scale with Nail** — Grimmchild deals the same damage as the Knight's current Nail.
 
 ### Grimmchild Vulnerability
 
-Choose whether Grimmchild can take damage from enemies, projectiles, and hazards.
+Choose whether Grimmchild can take damage.
 
-- **Off** — Grimmchild cannot take damage.
-- **On** — Grimmchild can take damage. When defeated, Grimmchild will disappear and revive when resting at a bench. If the Knight dies while Grimmchild is defeated, Grimmchild will respawn with the Knight.
+- **Off** — Grimmchild cannot be damaged.
+- **On** — Grimmchild can take damage from enemies, projectiles, and hazards and uses the health, death, and revival systems.
 
-<img width="943" height="449" alt="Captura de pantalla 2026-09-10 111936" src="https://github.com/user-attachments/assets/c6583d26-e395-44f4-b4a0-91d7f4574709" />
+<img width="943" height="449" alt="Grimmchild Co-op options" src="https://github.com/user-attachments/assets/c6583d26-e395-44f4-b4a0-91d7f4574709" />
 
+---
 
+## Controller Detection
+
+Hollow Knight may occasionally behave inconsistently when multiple controllers are connected, particularly in menus. This behavior can also occur without GrimmchildCoopMod installed.
+
+GrimmchildCoopMod assigns the Knight and Grimmchild controllers independently once in-game.
+
+If one of the controllers is not detected or assigned correctly, try reconnecting the controllers or restarting the game with both controllers already connected.
 
 ---
 
 ## Known Limitations
 
-- Grimmchild is permanently forced to Level 4, so parts of the Grimm Troupe progression may not behave as intended.
 - Two XInput-compatible controllers are required.
-- Grimmchild currently uses the original sprites.
-- On a brand-new save file, you must save, quit, and reload once for Grimmchild to appear.
+- Grimmchild is permanently forced to Level 4, so parts of the Grimm Troupe progression may not behave as originally intended.
+- Grimmchild currently uses the original Level 4 sprites.
+- Hollow Knight can occasionally behave inconsistently when handling multiple controllers, especially in menus.
+- On a brand-new save file, you may need to save, quit, and reload once for Grimmchild to appear correctly.
 
 ---
 
