@@ -88,6 +88,8 @@ When the Knight rests at a bench, Grimmchild lands and sleeps beside them.
 
 Grimmchild's health is fully restored while resting.
 
+<img width="306" height="116" alt="recarganew1" src="https://github.com/user-attachments/assets/9fd33d52-03f4-427f-adfd-3a4e04eeb30e" />.
+
 <img width="384" height="288" alt="Grimmchild sleeping" src="https://github.com/user-attachments/assets/f2e71050-54a7-47db-bc38-72407ab6803b" />
 
 ### Health
@@ -99,8 +101,6 @@ Grimmchild's maximum health is based on the Knight's current maximum health. Tak
 Lost flames are restored when Grimmchild recovers health at a bench.
 
 Grimmchild's remaining health persists when moving between rooms.
-
-<img width="306" height="116" alt="recarganew1" src="https://github.com/user-attachments/assets/9fd33d52-03f4-427f-adfd-3a4e04eeb30e" />.
 
 <img width="384" height="288" alt="hit" src="https://github.com/user-attachments/assets/d064a7a3-31f2-4c16-8f1d-2f2e581bc38e" />
 
