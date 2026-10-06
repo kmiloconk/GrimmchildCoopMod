@@ -2,6 +2,7 @@
 using HutongGames.PlayMaker;
 using HutongGames.PlayMaker.Actions;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 
@@ -46,9 +47,10 @@ namespace GrimmchildCoopMod
         private int currentHealth;
         private int maxHealth;
         private bool invulnerableAfterHit;
-
         private bool deathSequenceComplete;
 
+
+        
 
         public bool IsDead
         {
@@ -1185,44 +1187,79 @@ namespace GrimmchildCoopMod
             Modding.Logger.Log(
                 "[GrimmchildCoopMod] Grimmchild ha muerto.");
 
+            deathSequenceComplete = false;
+
             if (body != null)
             {
                 body.velocity = Vector2.zero;
             }
 
             /*
-             * La FSM original reproduce tanto Tele Out 4
-             * como el sonido de salida.
+             * Use Grimmchild's original despawn sequence.
+             *
+             * Despawn:
+             * - Tele Out 4
+             * - Stops the normal audio
+             * - Plays the original despawn sound
+             *
+             * Then the FSM automatically continues to Burst Out 2,
+             * which handles the final disappearance effect.
              */
             if (controlFSM != null)
             {
-                controlFSM.SetState("Tele Start");
+                controlFSM.enabled = true;
+                controlFSM.SetState("Despawn");
+
+                /*
+                 * Wait until the vanilla despawn sequence has passed
+                 * through Despawn and Burst Out 2.
+                 */
+                float timeout = 2f;
+
+                yield return null;
+
+                while (timeout > 0f)
+                {
+                    if (controlFSM == null)
+                        break;
+
+                    string state = controlFSM.ActiveStateName;
+
+                    if (state != "Despawn" &&
+                        state != "Burst Out 2")
+                    {
+                        break;
+                    }
+
+                    timeout -= Time.deltaTime;
+                    yield return null;
+                }
             }
             else if (animator != null)
             {
-                animator.Play("Tele Out 4");
-            }
-
-            yield return new WaitForSeconds(0.25f);
-
-            SetGrimmchildVisible(false);
-            StopAllGrimmchildAudio();
-            deathSequenceComplete = true;
-
-            if (controlFSM != null)
-            {
                 /*
-                 * Evita que la secuencia automática continúe y
-                 * teletransporte nuevamente al personaje.
+                 * Fallback in case the Control FSM is unavailable.
                  */
-                controlFSM.SetState("Follow");
+                animator.Play("Tele Out 4");
+
+                yield return new WaitForSeconds(0.25f);
             }
+
+            /*
+             * From this point Grimmchild is completely dead.
+             * Our code only keeps the dead state stable.
+             */
+            SetGrimmchildVisible(false);
+
+            StopAllGrimmchildAudio();
 
             if (body != null)
             {
                 body.velocity = Vector2.zero;
                 body.simulated = false;
             }
+
+            deathSequenceComplete = true;
 
             Modding.Logger.Log(
                 "[GrimmchildCoopMod] Grimmchild oculto hasta descansar en una banca.");

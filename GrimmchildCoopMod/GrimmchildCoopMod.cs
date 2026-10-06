@@ -56,7 +56,7 @@ namespace GrimmchildCoopMod
 
         public override string GetVersion()
         {
-            return "1.4.0";
+            return "1.4.2";
         }
 
         public override void Initialize()
