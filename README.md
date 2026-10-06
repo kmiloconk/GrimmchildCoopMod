@@ -100,6 +100,8 @@ Lost flames are restored when Grimmchild recovers health at a bench.
 
 Grimmchild's remaining health persists when moving between rooms.
 
+<img width="306" height="116" alt="recarganew1" src="https://github.com/user-attachments/assets/9fd33d52-03f4-427f-adfd-3a4e04eeb30e" />
+
 <img width="384" height="288" alt="hit" src="https://github.com/user-attachments/assets/d064a7a3-31f2-4c16-8f1d-2f2e581bc38e" />
 
 
@@ -131,7 +133,6 @@ The flames represent Grimmchild's remaining health:
 - Grimmchild's current health and flames persist between rooms.
 - When Grimmchild is defeated, the HUD reflects their defeated state.
 
-<img width="306" height="116" alt="recarganew1" src="https://github.com/user-attachments/assets/9fd33d52-03f4-427f-adfd-3a4e04eeb30e" />
 <img width="1916" height="256" alt="Captura de pantalla 2026-10-05 235443" src="https://github.com/user-attachments/assets/513fdec0-60e0-4859-acf7-ee62ec786ec2" />
 <img width="1919" height="254" alt="hud full" src="https://github.com/user-attachments/assets/f310123c-0602-46ce-aff4-5fc9def9df6a" />
 
@@ -139,7 +140,7 @@ The flames represent Grimmchild's remaining health:
 
 ## In-Game Options
 
-<img width="808" height="251" alt="Grimmchild Co-op settings" src="https://github.com/user-attachments/assets/5908cde3-c7f5-42c8-8348-741b1f30f2d0" />
+<img width="877" height="354" alt="Captura de pantalla 2026-10-06 003528" src="https://github.com/user-attachments/assets/a364da41-316b-48af-aead-e98532c7dc5d" />
 
 The mod includes an in-game settings menu where you can customize Grimmchild's controller, damage, and vulnerability.
 
